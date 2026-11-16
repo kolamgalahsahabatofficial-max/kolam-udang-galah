@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kolam Udang Sahabat</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0EA5E9">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #0EA5E9; 
+      --accent: #F97316; 
+      --bg-color: #F8FAFC; 
+      --text-dark: #1E293B;
+      --text-light: #64748B;
+      --white: #FFFFFF;
+      --success: #14B8A6;
+      --danger: #EF4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .login-container {
+      background-color: var(--white);
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .logo-text span {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-light);
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+      background-color: #0284C7;
+    }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    #app-dashboard {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container" id="login-screen">
+    <div class="logo-text">🦐 Kolam Udang <span>Sahabat</span></div>
+    <div class="subtitle">Sistem Pengurusan Galah (HR Edition)</div>
+
+    <div class="input-group">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="admin@kolam.com">
+    </div>
+
+    <div class="input-group">
+      <label>Kata Laluan</label>
+      <input type="password" id="login-password" placeholder="••••••••">
+    </div>
+
+    <button class="btn-primary" onclick="prosesLogin()">Log Masuk</button>
+    <div class="error-msg" id="login-error">Email atau password salah.</div>
+  </div>
+
+  <div id="app-dashboard">
+    <h1>Selamat Datang ke Dashboard!</h1>
+    <button onclick="prosesLogout()">Log Keluar</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    function prosesLogin() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const errorMsg = document.getElementById('login-error');
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          errorMsg.style.display = 'none';
+          console.log("Login berjaya:", userCredential.user.email);
+        })
+        .catch((error) => {
+          errorMsg.style.display = 'block';
+          console.error("Login error:", error.message);
+        });
+    }
+
+    function prosesLogout() {
+      auth.signOut().then(() => {
+        console.log("Logout berjaya");
+      });
+    }
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-dashboard').style.display = 'block';
+      } else {
+        document.getElementById('login-screen').style.display = 'block';
+        document.getElementById('app-dashboard').style.display = 'none';
+      }
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
