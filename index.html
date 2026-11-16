@@ -10,6 +10,9 @@
   <link rel="preload" href="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" as="image">
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
   
+  <!-- LIBRARY UNTUK JANA PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     :root {
       --primary: #FF8DA1; --accent: #A855F7; --bg-color: #FFF5F7; 
@@ -79,8 +82,8 @@
     .text-success { color: var(--success); font-weight: 700; }
     .text-danger { color: var(--danger); font-weight: 700; }
 
-    /* PRINT AREA */
-    #print-area { display: none; padding: 20px; font-family: monospace; }
+    /* PRINT AREA (Sembunyi dari pandangan, tapi wujud untuk jana PDF) */
+    #print-area { position: absolute; left: -9999px; top: -9999px; width: 400px; background: #FFF; padding: 20px; font-family: monospace; color: #000; }
     
     @media (max-width: 768px) {
       #app-dashboard { flex-direction: column; }
@@ -91,11 +94,6 @@
       .stats-grid { grid-template-columns: 1fr; }
       .main-content { padding: 15px; }
       .form-row { flex-direction: column; }
-    }
-    
-    @media print {
-      body > *:not(#print-area) { display: none !important; }
-      #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
     }
   </style>
 </head>
@@ -264,7 +262,7 @@
           
           <div class="flex-between" style="margin-top: 20px; border-top: 2px solid #FCE7F3; padding-top: 20px;">
             <h3>Total: <span id="resit-total" style="color: var(--primary);">RM 0.00</span></h3>
-            <button class="btn-excel" onclick="cetakResitPelanggan()" style="background-color: var(--accent); box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);">🖨️ Cetak Resit</button>
+            <button class="btn-excel" onclick="cetakResitPelanggan()" style="background-color: var(--accent); box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);">📄 Share / Save PDF</button>
           </div>
         </div>
       </div>
@@ -300,8 +298,6 @@
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    
-    // DUA UID BOS DIMASUKKAN DI SINI
     const BOS_UIDS = ["3Ah8hKjH6Qc54WKIfZN9rTighIO2", "lR7GhSu7HOfQLCEQqBTgXTv7ONm2"]; 
 
     function prosesLogin() {
@@ -318,7 +314,6 @@
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-dashboard').style.display = 'flex';
         
-        // SEMAK KEDUA-DUA UID
         if (BOS_UIDS.includes(user.uid)) {
           document.getElementById('user-role').innerText = "👑 Bos";
           document.querySelectorAll('.bos-only').forEach(el => el.style.display = 'flex');
@@ -461,12 +456,13 @@
           const data = doc.data();
           tbody.innerHTML += `<tr>
             <td>${data.nama}</td><td>${data.barang}</td>
-            <td><button class="btn-print" onclick="printResit('${data.nama}', '${data.barang}')">🖨️ Print Resit</button></td>
+            <td><button class="btn-print" onclick="printResit('${data.nama}', '${data.barang}')">📄 PDF</button></td>
           </tr>`;
         });
       });
     }
 
+    // FUNGSI JANA PDF (PEMBEKAL)
     function printResit(pembekal, barang) {
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
@@ -482,7 +478,35 @@
         <hr style="margin:10px 0; border-top: 1px dashed #000;">
         <p style="text-align:center;">Terima Kasih 🌸</p>
       `;
-      window.print();
+
+      // Tetapan PDF
+      const opt = {
+        margin: 0.5,
+        filename: `Resit_Pembekal_${pembekal}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      // Jana PDF & Share
+      html2pdf().set(opt).from(printArea).outputPdf('blob').then((pdfBlob) => {
+        const file = new File([pdfBlob], opt.filename, { type: 'application/pdf' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({
+            files: [file],
+            title: 'Resit Pembekal',
+            text: 'Resit dari Kolam Udang Sahabat'
+          }).catch(() => {
+            // Kalau user cancel share, download jer
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
+          });
+        } else {
+          // Fallback untuk PC
+          const url = URL.createObjectURL(pdfBlob);
+          const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
+        }
+      });
     }
 
     // ================= RESIT & INVOICE (PELANGGAN) =================
@@ -527,6 +551,7 @@
       paparItemResit();
     }
 
+    // FUNGSI JANA PDF (PELANGGAN)
     function cetakResitPelanggan() {
       const nama = document.getElementById('inv-nama').value;
       if (!nama) return alert("Sila masukkan nama pelanggan.");
@@ -539,45 +564,79 @@
         total += subtotal;
         tableRows += `
           <tr>
-            <td>${data.item}</td>
-            <td>${data.qty}</td>
-            <td>RM ${data.harga.toFixed(2)}</td>
-            <td style="text-align:right;">RM ${subtotal.toFixed(2)}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.item}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align:center;">${data.qty}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align:right;">RM ${data.harga.toFixed(2)}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align:right;">RM ${subtotal.toFixed(2)}</td>
           </tr>
         `;
       });
 
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
-        <div style="max-width:400px; margin: 0 auto; font-family: monospace;">
-          <div style="text-align:center;">
-            <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 60px; margin-bottom: 10px;">
-          </div>
-          <h2 style="text-align:center; margin-bottom:5px; color: #FF8DA1;">KOLAM UDANG SAHABAT</h2>
-          <p style="text-align:center; font-size:12px; margin-bottom:20px;">Resit Rasmi</p>
-          
-          <p><strong>Tarikh:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
-          <p><strong>Pelanggan:</strong> ${nama}</p>
-          <hr style="margin:15px 0; border-top: 1px dashed #000;">
-          
-          <table style="width:100%; font-size:14px; margin-bottom:15px; border-collapse: collapse;">
-            <thead>
-              <tr><th style="text-align:left; border-bottom: 1px solid #000; padding-bottom:5px;">Item</th><th style="border-bottom: 1px solid #000; padding-bottom:5px;">Qty</th><th style="border-bottom: 1px solid #000; padding-bottom:5px;">Harga</th><th style="text-align:right; border-bottom: 1px solid #000; padding-bottom:5px;">Jumlah</th></tr>
-            </thead>
-            <tbody>${tableRows}</tbody>
-          </table>
-          
-          <hr style="margin:15px 0; border-top: 1px dashed #000;">
-          <h3 style="text-align:right; color: #A855F7;">TOTAL: RM ${total.toFixed(2)}</h3>
-          
-          <p style="text-align:center; margin-top:30px; font-size:12px;">Terima Kasih Kerana Memancing Di Sini! 🌸</p>
+        <div style="text-align:center;">
+          <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 60px; margin-bottom: 10px;">
         </div>
+        <h2 style="text-align:center; margin-bottom:5px; color: #FF8DA1;">KOLAM UDANG SAHABAT</h2>
+        <p style="text-align:center; font-size:12px; margin-bottom:20px;">Resit Rasmi</p>
+        
+        <p><strong>Tarikh:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
+        <p><strong>Pelanggan:</strong> ${nama}</p>
+        <hr style="margin:15px 0; border-top: 1px dashed #000;">
+        
+        <table style="width:100%; font-size:12px; margin-bottom:15px; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding-bottom:5px; border-bottom: 2px solid #000;">Item</th>
+              <th style="text-align:center; padding-bottom:5px; border-bottom: 2px solid #000;">Qty</th>
+              <th style="text-align:right; padding-bottom:5px; border-bottom: 2px solid #000;">Harga</th>
+              <th style="text-align:right; padding-bottom:5px; border-bottom: 2px solid #000;">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+        
+        <hr style="margin:15px 0; border-top: 1px dashed #000;">
+        <h3 style="text-align:right; color: #A855F7;">TOTAL: RM ${total.toFixed(2)}</h3>
+        
+        <p style="text-align:center; margin-top:30px; font-size:12px;">Terima Kasih Kerana Memancing Di Sini! 🌸</p>
       `;
-      
-      // Paksa browser buka pop-up print
-      window.print(); 
-      
-      // Data tak akan padam secara automatik sekarang, jadi adik kau boleh save/print semula kalau tersalah tekan.
+
+      // Tetapan PDF
+      const opt = {
+        margin: 0.5,
+        filename: `Resit_Pelanggan_${nama}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      // Jana PDF & Share
+      html2pdf().set(opt).from(printArea).outputPdf('blob').then((pdfBlob) => {
+        const file = new File([pdfBlob], opt.filename, { type: 'application/pdf' });
+        
+        // Guna Web Share API (Berfungsi kat Android & iPhone)
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({
+            files: [file],
+            title: 'Resit Pelanggan',
+            text: 'Resit dari Kolam Udang Sahabat'
+          }).catch(() => {
+            // Fallback kalau user cancel
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
+          });
+        } else {
+          // Fallback untuk PC / Browser lama
+          const url = URL.createObjectURL(pdfBlob);
+          const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
+        }
+        
+        // Lepas share, kita clear form (tapi data xkan hilang kalau dia cancel)
+        // document.getElementById('inv-nama').value = '';
+        // resitItems = [];
+        // paparItemResit();
+      });
     }
 
     // ================= SYIF & TUGASAN (HR) =================
