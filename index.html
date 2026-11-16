@@ -99,7 +99,11 @@
 
   <!-- SKRIN LOGIN -->
   <div class="login-container" id="login-screen">
-    <div class="logo-text">🦐 Kolam Udang <span>Sahabat</span></div>
+    <!-- LOGO DI SINI -->
+    <div class="logo-text">
+      <img src="logo.png.JPG" style="height: 70px; margin-bottom: 10px; border-radius: 8px;"><br>
+      Kolam Udang <span>Sahabat</span>
+    </div>
     <div class="subtitle">Sistem Pengurusan Galah (HR Edition)</div>
     <div class="input-group">
       <label>Email</label>
@@ -118,7 +122,12 @@
     
     <!-- SIDEBAR MENU -->
     <div class="sidebar">
-      <div class="sidebar-logo">🦐 Udang<span>Sahabat</span></div>
+      <!-- LOGO DI SINI -->
+      <div class="sidebar-logo">
+        <img src="logo.png.JPG" style="height: 30px; vertical-align: middle; margin-right: 5px; border-radius: 4px;"> 
+        Udang<span>Sahabat</span>
+      </div>
+      
       <div class="menu-item active" onclick="tukarPage('dashboard', this)">🏠 Dashboard</div>
       <div class="menu-item" onclick="tukarPage('kolam', this)">🎣 Kolam & Sesi</div>
       <div class="menu-item bos-only" style="display:none;" onclick="tukarPage('cashflow', this)">💰 Cashflow</div>
@@ -239,7 +248,7 @@
         </div>
       </div>
 
-      <!-- ================= 6. PAGE RESIT & INVOICE (BARU!) ================= -->
+      <!-- ================= 6. PAGE RESIT & INVOICE ================= -->
       <div id="page-resit" class="page-section">
         <div class="card-panel">
           <h2>Buat Resit / Invoice Pelanggan</h2>
@@ -476,6 +485,9 @@
     function printResit(pembekal, barang) {
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
+        <div style="text-align:center;">
+          <img src="logo.png.JPG" style="height: 60px; margin-bottom: 10px;">
+        </div>
         <h2 style="text-align:center;">KOLAM UDANG SAHABAT</h2>
         <p style="text-align:center; font-size:12px;">Resit Pembelian Stok</p>
         <hr style="margin:10px 0;">
@@ -553,6 +565,9 @@
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
         <div style="max-width:400px; margin: 0 auto;">
+          <div style="text-align:center;">
+            <img src="logo.png.JPG" style="height: 60px; margin-bottom: 10px;">
+          </div>
           <h2 style="text-align:center; margin-bottom:5px;">KOLAM UDANG SAHABAT</h2>
           <p style="text-align:center; font-size:12px; margin-bottom:20px;">Resit Rasmi</p>
           
