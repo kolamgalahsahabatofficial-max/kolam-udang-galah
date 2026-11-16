@@ -3,93 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kolam Udang Sahabat 🎀</title>
+  <title>Kolam Udang Sahabat</title>
   
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#FFB6C1">
+  <meta name="theme-color" content="#0EA5E9">
   <link rel="preload" href="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" as="image">
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- LIBRARY UNTUK JANA PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
     :root {
-      --primary: #FF8DA1; --accent: #A855F7; --bg-color: #FFF5F7; 
-      --text-dark: #4A3B42; --text-light: #9C8E94; --white: #FFFFFF;
-      --success: #34D399; --danger: #F87171;
+      --primary: #0EA5E9; /* Biru Laut */
+      --accent: #1E3A8A; /* Biru Gelap */
+      --bg-color: #F8FAFC; /* Kelabu Cerah */
+      --text-dark: #1E293B;
+      --text-light: #64748B;
+      --white: #FFFFFF;
+      --success: #10B981; /* Hijau */
+      --danger: #EF4444; /* Merah */
     }
     
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-dark); min-height: 100vh; }
     
     /* LOGIN */
-    .login-container { background-color: var(--white); padding: 40px 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(255, 141, 161, 0.15); width: 90%; max-width: 400px; text-align: center; margin: 10vh auto 0 auto; }
+    .login-container { background-color: var(--white); padding: 40px 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 90%; max-width: 400px; text-align: center; margin: 10vh auto 0 auto; }
     .logo-text { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--primary); }
     .logo-text span { color: var(--accent); }
-    .subtitle { font-size: 14px; color: var(--text-light); margin-bottom: 30px; font-weight: 600; }
+    .subtitle { font-size: 14px; color: var(--text-light); margin-bottom: 30px; font-weight: 500; }
     .input-group { margin-bottom: 15px; text-align: left; }
-    .input-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; color: var(--text-dark); }
-    .input-group input, .input-group select { width: 100%; padding: 14px 15px; border: 2px solid #FCE7F3; border-radius: 12px; font-size: 14px; outline: none; font-weight: 500; transition: 0.3s; }
-    .input-group input:focus { border-color: var(--primary); }
-    .btn-primary { width: 100%; padding: 14px; background-color: var(--primary); color: var(--white); border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(255, 141, 161, 0.3); }
+    .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-dark); }
+    .input-group input, .input-group select { width: 100%; padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; font-weight: 500; transition: 0.3s; }
+    .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+    .btn-primary { width: 100%; padding: 14px; background-color: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
     .error-msg { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; font-weight: 600; }
 
     /* DASHBOARD LAYOUT */
     #app-dashboard { display: none; flex-direction: row; min-height: 100vh; }
-    .sidebar { width: 260px; background-color: var(--white); border-right: 2px solid #FCE7F3; padding: 20px 0; display: flex; flex-direction: column; overflow-y: auto; }
-    .sidebar-logo { font-size: 20px; font-weight: 700; padding: 0 20px 20px 20px; border-bottom: 2px solid #FCE7F3; margin-bottom: 20px; color: var(--primary); }
+    .sidebar { width: 260px; background-color: var(--white); border-right: 1px solid #E2E8F0; padding: 20px 0; display: flex; flex-direction: column; overflow-y: auto; }
+    .sidebar-logo { font-size: 20px; font-weight: 700; padding: 0 20px 20px 20px; border-bottom: 1px solid #E2E8F0; margin-bottom: 20px; color: var(--primary); }
     .sidebar-logo span { color: var(--accent); }
-    .menu-item { padding: 14px 20px; color: var(--text-light); font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; border-radius: 0 20px 20px 0; margin-bottom: 5px; }
-    .menu-item:hover, .menu-item.active { background-color: #FFF0F5; color: var(--primary); border-right: 4px solid var(--primary); }
+    .menu-item { padding: 12px 20px; color: var(--text-light); font-weight: 500; font-size: 14px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; border-radius: 0 8px 8px 0; margin-bottom: 2px; }
+    .menu-item:hover, .menu-item.active { background-color: #F0F9FF; color: var(--primary); border-right: 4px solid var(--primary); }
     
     .main-content { flex: 1; padding: 30px; overflow-y: auto; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    .header h1 { font-size: 24px; color: var(--primary); }
-    .user-info { font-size: 14px; color: var(--text-dark); font-weight: 600; display: flex; align-items: center; gap: 15px; }
-    .btn-logout { background: none; border: 2px solid var(--danger); color: var(--danger); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 700; }
+    .header h1 { font-size: 24px; color: var(--accent); }
+    .user-info { font-size: 14px; color: var(--text-dark); font-weight: 500; display: flex; align-items: center; gap: 15px; }
+    .btn-logout { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 
     /* DASHBOARD HOME */
-    .status-card { background-color: var(--white); padding: 30px; border-radius: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.03); text-align: center; margin-bottom: 30px; border: 3px solid var(--success); }
+    .status-card { background-color: var(--white); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center; margin-bottom: 30px; border: 2px solid var(--success); }
     .status-card.closed { border-color: var(--danger); }
     .status-badge { font-size: 28px; font-weight: 700; color: var(--success); margin-bottom: 10px; }
     .status-card.closed .status-badge { color: var(--danger); }
-    .status-sub { color: var(--text-light); font-size: 14px; margin-bottom: 20px; font-weight: 600; }
-    .btn-toggle { padding: 12px 30px; border: none; border-radius: 20px; font-size: 16px; font-weight: 700; cursor: pointer; color: var(--white); background-color: var(--danger); box-shadow: 0 4px 10px rgba(248, 113, 113, 0.3); }
-    .status-card.closed .btn-toggle { background-color: var(--success); box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3); }
+    .status-sub { color: var(--text-light); font-size: 14px; margin-bottom: 20px; font-weight: 500; }
+    .btn-toggle { padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; color: var(--white); background-color: var(--danger); }
+    .status-card.closed .btn-toggle { background-color: var(--success); }
     
     .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .stat-card { background: var(--white); padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(255, 141, 161, 0.08); border: 1px solid #FCE7F3; }
-    .stat-card h3 { font-size: 14px; color: var(--text-light); margin-bottom: 10px; font-weight: 700; }
+    .stat-card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #E2E8F0; }
+    .stat-card h3 { font-size: 14px; color: var(--text-light); margin-bottom: 10px; font-weight: 600; }
     .stat-card .value { font-size: 28px; font-weight: 700; color: var(--primary); }
 
     /* PAGE GLOBAL */
     .page-section { display: none; }
     .page-section.active { display: block; }
-    .card-panel { background: var(--white); padding: 25px; border-radius: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #FCE7F3; }
+    .card-panel { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px; border: 1px solid #E2E8F0; }
     .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
     .form-row { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-    .form-row input, .form-row select { flex: 1; padding: 12px; border: 2px solid #FCE7F3; border-radius: 12px; font-size: 14px; min-width: 120px; font-weight: 500; }
-    .btn-save { background-color: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: 700; box-shadow: 0 4px 10px rgba(255, 141, 161, 0.3); }
-    .btn-excel { background-color: var(--success); color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: 700; box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3); }
-    .btn-print { background-color: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; }
+    .form-row input, .form-row select { flex: 1; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; min-width: 120px; font-weight: 500; }
+    .btn-save { background-color: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-excel { background-color: var(--success); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-print { background-color: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
 
     /* TABLE */
     .table-responsive { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;}
-    th, td { padding: 15px 12px; text-align: left; border-bottom: 2px solid #FCE7F3; }
-    th { background-color: #FFF0F5; font-weight: 700; color: var(--primary); border-radius: 10px 10px 0 0; }
-    .text-success { color: var(--success); font-weight: 700; }
-    .text-danger { color: var(--danger); font-weight: 700; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E2E8F0; }
+    th { background-color: #F8FAFC; font-weight: 600; color: var(--text-light); }
+    .text-success { color: var(--success); font-weight: 600; }
+    .text-danger { color: var(--danger); font-weight: 600; }
 
     /* PRINT AREA (Sembunyi dari pandangan, tapi wujud untuk jana PDF) */
-    #print-area { position: absolute; left: -9999px; top: -9999px; width: 400px; background: #FFF; padding: 20px; font-family: monospace; color: #000; }
+    #print-area { position: absolute; left: -9999px; top: -9999px; width: 700px; background: #FFF; padding: 30px; font-family: Arial, sans-serif; color: #000; }
+    
+    /* STYLE UNTUK LETTERHEAD RESIT */
+    .letterhead { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+    .letterhead-left { text-align: left; }
+    .letterhead-title { font-size: 20px; font-weight: bold; color: #000; margin-bottom: 5px; }
+    .letterhead-sub { font-size: 12px; color: #000; line-height: 1.4; }
+    .letterhead-logo { height: 80px; object-fit: contain; }
     
     @media (max-width: 768px) {
       #app-dashboard { flex-direction: column; }
-      .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 2px solid #FCE7F3; border-right: none; }
+      .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid #E2E8F0; border-right: none; }
       .sidebar-logo { display: none; }
-      .menu-item { padding: 10px; white-space: nowrap; border-right: none; border-bottom: 3px solid transparent; border-radius: 10px; margin-bottom: 0; }
+      .menu-item { padding: 10px; white-space: nowrap; border-right: none; border-bottom: 3px solid transparent; border-radius: 8px; margin-bottom: 0; }
       .menu-item.active { border-bottom: 3px solid var(--primary); background-color: transparent; border-right: none; }
       .stats-grid { grid-template-columns: 1fr; }
       .main-content { padding: 15px; }
@@ -101,10 +113,10 @@
 
   <div class="login-container" id="login-screen">
     <div class="logo-text">
-      <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 70px; margin-bottom: 10px; border-radius: 16px;"><br>
-      Kolam Udang <span>Sahabat</span> 🎀
+      <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 70px; margin-bottom: 10px; border-radius: 8px;"><br>
+      Kolam Udang <span>Sahabat</span>
     </div>
-    <div class="subtitle">Sistem Pengurusan Galah (Sweet Edition) ✨</div>
+    <div class="subtitle">Sistem Pengurusan Galah (Corporate Edition)</div>
     <div class="input-group">
       <label>Email</label>
       <input type="email" id="login-email" placeholder="admin@kolam.com">
@@ -113,15 +125,15 @@
       <label>Kata Laluan</label>
       <input type="password" id="login-password" placeholder="••••••••">
     </div>
-    <button class="btn-primary" onclick="prosesLogin()">Log Masuk 🌸</button>
+    <button class="btn-primary" onclick="prosesLogin()">Log Masuk</button>
     <div class="error-msg" id="login-error">Email atau password salah.</div>
   </div>
 
   <div id="app-dashboard">
     <div class="sidebar">
       <div class="sidebar-logo">
-        <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 30px; vertical-align: middle; margin-right: 5px; border-radius: 8px;"> 
-        Udang<span>Sahabat</span> 🍓
+        <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 30px; vertical-align: middle; margin-right: 5px; border-radius: 4px;"> 
+        Udang<span>Sahabat</span>
       </div>
       
       <div class="menu-item active" onclick="tukarPage('dashboard', this)">🏠 Dashboard</div>
@@ -135,7 +147,7 @@
 
     <div class="main-content">
       <div class="header">
-        <h1 id="page-title">Dashboard ✨</h1>
+        <h1 id="page-title">Dashboard</h1>
         <div class="user-info">
           <span id="user-role">Loading...</span>
           <button class="btn-logout" onclick="prosesLogout()">Log Keluar</button>
@@ -158,7 +170,7 @@
       <div id="page-cashflow" class="page-section">
         <div class="card-panel">
           <div class="flex-between">
-            <h2>Rekod Aliran Tunai 💸</h2>
+            <h2>Rekod Aliran Tunai</h2>
             <button class="btn-excel" onclick="exportExcel()">📥 Export Excel</button>
           </div>
           <div class="form-row">
@@ -181,7 +193,7 @@
 
       <div id="page-pelanggan" class="page-section">
         <div class="card-panel">
-          <h2>Daftar Pelanggan Baru 👥</h2>
+          <h2>Daftar Pelanggan Baru</h2>
           <div class="form-row">
             <input type="text" id="plg-name" placeholder="Nama Penuh">
             <input type="text" id="plg-phone" placeholder="No. Telefon">
@@ -202,7 +214,7 @@
 
       <div id="page-kolam" class="page-section">
         <div class="card-panel">
-          <h2>Rekod Sesi Mancing 🎣</h2>
+          <h2>Rekod Sesi Mancing</h2>
           <div class="form-row">
             <input type="text" id="sesi-nama" placeholder="Nama Pelanggan">
             <select id="sesi-kolam">
@@ -223,7 +235,7 @@
 
       <div id="page-pembekal" class="page-section">
         <div class="card-panel">
-          <h2>Rekod Pembekal (Penternak Luar) 🚚</h2>
+          <h2>Rekod Pembekal (Penternak Luar)</h2>
           <div class="form-row">
             <input type="text" id="pb-nama" placeholder="Nama Pembekal">
             <input type="text" id="pb-barang" placeholder="Barang (Cth: Udang Galah 10kg)">
@@ -240,9 +252,9 @@
 
       <div id="page-resit" class="page-section">
         <div class="card-panel">
-          <h2>Buat Resit / Invoice Pelanggan 🧾</h2>
+          <h2>Buat Resit / Invoice Pelanggan</h2>
           
-          <div class="form-row" style="background: #FFF0F5; padding: 15px; border-radius: 12px; border: 1px solid #FCE7F3;">
+          <div class="form-row" style="background: #F8FAFC; padding: 15px; border-radius: 8px; border: 1px solid #E2E8F0;">
             <input type="text" id="inv-nama" placeholder="Nama Pelanggan" style="flex: 2;">
           </div>
 
@@ -260,16 +272,16 @@
             </table>
           </div>
           
-          <div class="flex-between" style="margin-top: 20px; border-top: 2px solid #FCE7F3; padding-top: 20px;">
+          <div class="flex-between" style="margin-top: 20px; border-top: 1px solid #E2E8F0; padding-top: 20px;">
             <h3>Total: <span id="resit-total" style="color: var(--primary);">RM 0.00</span></h3>
-            <button class="btn-excel" onclick="cetakResitPelanggan()" style="background-color: var(--accent); box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);">📄 Share / Save PDF</button>
+            <button class="btn-excel" onclick="cetakResitPelanggan()" style="background-color: var(--accent);">📄 Share / Save PDF</button>
           </div>
         </div>
       </div>
 
       <div id="page-syif" class="page-section">
         <div class="card-panel">
-          <h2>Tugasan Pekerja (HR) 🗓️</h2>
+          <h2>Tugasan Pekerja</h2>
           <div class="form-row">
             <input type="text" id="syif-nama" placeholder="Nama Staff">
             <input type="text" id="syif-tugas" placeholder="Tugasan (Cth: Kemas Kolam A)">
@@ -335,13 +347,13 @@
       document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
       if(element) element.classList.add('active');
 
-      let title = "Dashboard ✨";
-      if(pageName === 'cashflow') title = "Cashflow 💸";
-      if(pageName === 'pelanggan') title = "Pelanggan 👥";
-      if(pageName === 'kolam') title = "Kolam & Sesi 🎣";
-      if(pageName === 'pembekal') title = "Pembekal 🚚";
-      if(pageName === 'resit') title = "Resit & Invoice 🧾";
-      if(pageName === 'syif') title = "Syif & Tugasan 🗓️";
+      let title = "Dashboard";
+      if(pageName === 'cashflow') title = "Cashflow";
+      if(pageName === 'pelanggan') title = "Pelanggan";
+      if(pageName === 'kolam') title = "Kolam & Sesi";
+      if(pageName === 'pembekal') title = "Pembekal";
+      if(pageName === 'resit') title = "Resit & Invoice";
+      if(pageName === 'syif') title = "Syif & Tugasan";
       document.getElementById('page-title').innerText = title;
     }
 
@@ -465,44 +477,50 @@
     // FUNGSI JANA PDF (PEMBEKAL)
     function printResit(pembekal, barang) {
       const printArea = document.getElementById('print-area');
-      printArea.innerHTML = `
-        <div style="text-align:center;">
-          <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 60px; margin-bottom: 10px;">
+      
+      const letterhead = `
+        <div class="letterhead">
+          <div class="letterhead-left">
+            <div class="letterhead-title">KOLAM PANCING UDANG GALAH SAHABAT</div>
+            <div class="letterhead-sub">
+              Untuk Pertanyaan Hubungi: <strong>MR ALOM 018-2970763</strong><br>
+              WAZE: KOLAM PANCING UDANG GALAH SAHABAT<br>
+              FB: KOLAM PANCING UDANG GALAH SAHABAT
+            </div>
+          </div>
+          <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" class="letterhead-logo">
         </div>
-        <h2 style="text-align:center; color: #FF8DA1;">KOLAM UDANG SAHABAT</h2>
-        <p style="text-align:center; font-size:12px;">Resit Pembelian Stok</p>
-        <hr style="margin:10px 0; border-top: 1px dashed #000;">
-        <p><strong>Tarikh:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
-        <p><strong>Pembekal:</strong> ${pembekal}</p>
-        <p><strong>Barang:</strong> ${barang}</p>
-        <hr style="margin:10px 0; border-top: 1px dashed #000;">
-        <p style="text-align:center;">Terima Kasih 🌸</p>
       `;
 
-      // Tetapan PDF
+      printArea.innerHTML = `
+        ${letterhead}
+        <h2 style="text-align:center; margin-bottom:5px; color: #000;">RESIT PEMBELIAN STOK</h2>
+        <p style="text-align:center; font-size:12px; margin-bottom:20px; color: #333;">Dijana pada: ${new Date().toLocaleDateString('ms-MY')}</p>
+        
+        <p style="color: #000;"><strong>Pembekal:</strong> ${pembekal}</p>
+        <p style="color: #000;"><strong>Barang:</strong> ${barang}</p>
+        <hr style="margin:15px 0; border-top: 1px solid #000;">
+        
+        <p style="text-align:center; margin-top:30px; font-size:12px; color: #000;">Terima Kasih.</p>
+      `;
+
       const opt = {
         margin: 0.5,
         filename: `Resit_Pembekal_${pembekal}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
 
-      // Jana PDF & Share
       html2pdf().set(opt).from(printArea).outputPdf('blob').then((pdfBlob) => {
         const file = new File([pdfBlob], opt.filename, { type: 'application/pdf' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          navigator.share({
-            files: [file],
-            title: 'Resit Pembekal',
-            text: 'Resit dari Kolam Udang Sahabat'
-          }).catch(() => {
-            // Kalau user cancel share, download jer
-            const url = URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
-          });
+          navigator.share({ files: [file], title: 'Resit Pembekal', text: 'Resit dari Kolam Udang Sahabat' })
+            .catch(() => {
+              const url = URL.createObjectURL(pdfBlob);
+              const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
+            });
         } else {
-          // Fallback untuk PC
           const url = URL.createObjectURL(pdfBlob);
           const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
         }
@@ -564,78 +582,81 @@
         total += subtotal;
         tableRows += `
           <tr>
-            <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.item}</td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align:center;">${data.qty}</td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align:right;">RM ${data.harga.toFixed(2)}</td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align:right;">RM ${subtotal.toFixed(2)}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #000; color: #000;">${data.item}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #000; text-align:center; color: #000;">${data.qty}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #000; text-align:right; color: #000;">RM ${data.harga.toFixed(2)}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #000; text-align:right; color: #000;">RM ${subtotal.toFixed(2)}</td>
           </tr>
         `;
       });
 
+      const letterhead = `
+        <div class="letterhead">
+          <div class="letterhead-left">
+            <div class="letterhead-title">KOLAM PANCING UDANG GALAH SAHABAT</div>
+            <div class="letterhead-sub">
+              Untuk Pertanyaan Hubungi: <strong>MR ALOM 018-2970763</strong><br>
+              WAZE: KOLAM PANCING UDANG GALAH SAHABAT<br>
+              FB: KOLAM PANCING UDANG GALAH SAHABAT
+            </div>
+          </div>
+          <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" class="letterhead-logo">
+        </div>
+      `;
+
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
-        <div style="text-align:center;">
-          <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 60px; margin-bottom: 10px;">
-        </div>
-        <h2 style="text-align:center; margin-bottom:5px; color: #FF8DA1;">KOLAM UDANG SAHABAT</h2>
-        <p style="text-align:center; font-size:12px; margin-bottom:20px;">Resit Rasmi</p>
+        ${letterhead}
+        <h2 style="text-align:center; margin-bottom:5px; color: #000;">RESIT RASMI</h2>
+        <p style="text-align:center; font-size:12px; margin-bottom:20px; color: #333;">Dijana pada: ${new Date().toLocaleDateString('ms-MY')}</p>
         
-        <p><strong>Tarikh:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
-        <p><strong>Pelanggan:</strong> ${nama}</p>
+        <div style="display:flex; justify-content:space-between; margin-bottom: 15px; color: #000;">
+            <div><strong>Pelanggan:</strong> ${nama}</div>
+        </div>
         <hr style="margin:15px 0; border-top: 1px dashed #000;">
         
         <table style="width:100%; font-size:12px; margin-bottom:15px; border-collapse: collapse;">
           <thead>
             <tr>
-              <th style="text-align:left; padding-bottom:5px; border-bottom: 2px solid #000;">Item</th>
-              <th style="text-align:center; padding-bottom:5px; border-bottom: 2px solid #000;">Qty</th>
-              <th style="text-align:right; padding-bottom:5px; border-bottom: 2px solid #000;">Harga</th>
-              <th style="text-align:right; padding-bottom:5px; border-bottom: 2px solid #000;">Jumlah</th>
+              <th style="text-align:left; padding-bottom:5px; border-bottom: 2px solid #000; color: #000;">Item</th>
+              <th style="text-align:center; padding-bottom:5px; border-bottom: 2px solid #000; color: #000;">Qty</th>
+              <th style="text-align:right; padding-bottom:5px; border-bottom: 2px solid #000; color: #000;">Harga</th>
+              <th style="text-align:right; padding-bottom:5px; border-bottom: 2px solid #000; color: #000;">Jumlah</th>
             </tr>
           </thead>
           <tbody>${tableRows}</tbody>
         </table>
         
         <hr style="margin:15px 0; border-top: 1px dashed #000;">
-        <h3 style="text-align:right; color: #A855F7;">TOTAL: RM ${total.toFixed(2)}</h3>
+        <h3 style="text-align:right; color: #000;">TOTAL: RM ${total.toFixed(2)}</h3>
         
-        <p style="text-align:center; margin-top:30px; font-size:12px;">Terima Kasih Kerana Memancing Di Sini! 🌸</p>
+        <p style="text-align:center; margin-top:30px; font-size:12px; color: #000;">Terima Kasih Kerana Memancing Di Sini!</p>
       `;
 
-      // Tetapan PDF
       const opt = {
         margin: 0.5,
         filename: `Resit_Pelanggan_${nama}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
 
-      // Jana PDF & Share
       html2pdf().set(opt).from(printArea).outputPdf('blob').then((pdfBlob) => {
         const file = new File([pdfBlob], opt.filename, { type: 'application/pdf' });
         
-        // Guna Web Share API (Berfungsi kat Android & iPhone)
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           navigator.share({
             files: [file],
             title: 'Resit Pelanggan',
             text: 'Resit dari Kolam Udang Sahabat'
           }).catch(() => {
-            // Fallback kalau user cancel
             const url = URL.createObjectURL(pdfBlob);
             const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
           });
         } else {
-          // Fallback untuk PC / Browser lama
           const url = URL.createObjectURL(pdfBlob);
           const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
         }
-        
-        // Lepas share, kita clear form (tapi data xkan hilang kalau dia cancel)
-        // document.getElementById('inv-nama').value = '';
-        // resitItems = [];
-        // paparItemResit();
       });
     }
 
