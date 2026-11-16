@@ -79,22 +79,23 @@
     .text-success { color: var(--success); font-weight: 600; }
     .text-danger { color: var(--danger); font-weight: 600; }
 
-    /* PRINT AREA - DISOROK BIASA */
+    /* PRINT AREA - TERSEMBUNYI BIASA */
     #print-area { display: none; }
+    .letterhead { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+    .letterhead-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+    .letterhead-sub { font-size: 12px; line-height: 1.4; }
+    .letterhead-logo { height: 80px; }
     
-    /* BILA PRINT, TUNJUK RESIT SAHAJA */
+    /* BILA PRINT: BUANG TERUS SEMUA BENDA LAIN */
     @media print {
-      body * { visibility: hidden; }
-      #print-area, #print-area * { visibility: visible; }
-      #print-area { 
-        position: absolute; left: 0; top: 0; width: 100%; 
-        display: block !important; background: #fff; padding: 20px;
+      @page { margin: 10mm; }
+      html, body { background: #fff !important; min-height: 0 !important; height: auto !important; }
+      body > *:not(#print-area) { display: none !important; }
+      #print-area {
+        display: block !important; background: #fff; padding: 10px;
         font-family: Arial, sans-serif; color: #000;
       }
-      .letterhead { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
-      .letterhead-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
-      .letterhead-sub { font-size: 12px; line-height: 1.4; }
-      .letterhead-logo { height: 80px; }
+      #print-area * { font-family: Arial, sans-serif; }
     }
     
     @media (max-width: 768px) {
@@ -161,8 +162,8 @@
           <button class="btn-toggle" id="btn-toggle-status" onclick="tukarStatus()">🔴 Tutup Kolam</button>
         </div>
         <div class="stats-grid">
-          <div class="stat-card"><h3>Hasil Hari Ini</h3><div class="value">RM 0.00</div></div>
-          <div class="stat-card"><h3>Sesi Mancing Aktif</h3><div class="value">0</div></div>
+          <div class="stat-card"><h3>Hasil Hari Ini</h3><div class="value" id="dash-hasil">RM 0.00</div></div>
+          <div class="stat-card"><h3>Sesi Mancing Hari Ini</h3><div class="value" id="dash-sesi">0</div></div>
           <div class="stat-card"><h3>Pelanggan Berdaftar</h3><div class="value" id="dash-pelanggan">0</div></div>
         </div>
       </div>
@@ -289,7 +290,7 @@
           </div>
           <div class="table-responsive">
             <table id="table-syif">
-              <thead><tr><th>Staff</th><th>Tugasan</th><th>Status</th></tr></thead>
+              <thead><tr><th>Staff</th><th>Tugasan</th><th>Status</th><th>Tindakan</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -299,8 +300,21 @@
     </div>
   </div>
 
-  <!-- KAWASAN RESIT UNTUK PRINT -->
-  <div id="print-area"></div>
+  <!-- KAWASAN RESIT UNTUK PRINT: letterhead + logo kekal dalam DOM -->
+  <div id="print-area">
+    <div class="letterhead">
+      <div class="letterhead-left">
+        <div class="letterhead-title">KOLAM PANCING UDANG GALAH SAHABAT</div>
+        <div class="letterhead-sub">
+          Untuk Pertanyaan Hubungi: <strong>MR ALOM 018-2970763</strong><br>
+          WAZE: KOLAM PANCING UDANG GALAH SAHABAT<br>
+          FB: KOLAM PANCING UDANG GALAH SAHABAT
+        </div>
+      </div>
+      <img id="print-logo" src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" class="letterhead-logo" alt="Logo">
+    </div>
+    <div id="print-body"></div>
+  </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -313,14 +327,33 @@
     const db = firebase.firestore();
     const BOS_UIDS = ["3Ah8hKjH6Qc54WKIfZN9rTighIO2", "lR7GhSu7HOfQLCEQqBTgXTv7ONm2"]; 
 
+    // Elak kod HTML terselit dalam nama/keterangan
+    function esc(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // ================= LOGIN =================
     function prosesLogin() {
-      const email = document.getElementById('login-email').value;
+      const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
       auth.signInWithEmailAndPassword(email, password)
         .then(() => { document.getElementById('login-error').style.display = 'none'; })
         .catch(() => { document.getElementById('login-error').style.display = 'block'; });
     }
     function prosesLogout() { auth.signOut(); }
+    document.getElementById('login-password').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') prosesLogin();
+    });
+
+    // Simpan fungsi "unsubscribe"
+    let unsubs = [];
+    function stopAllData() { unsubs.forEach(u => u && u()); unsubs = []; }
+    function loadAllData() {
+      stopAllData();
+      unsubs.push(loadCashflow(), loadPelanggan(), loadSesi(), loadPembekal(), loadSyif());
+    }
 
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -337,6 +370,7 @@
         }
         loadAllData(); 
       } else {
+        stopAllData();
         document.getElementById('login-screen').style.display = 'block';
         document.getElementById('app-dashboard').style.display = 'none';
       }
@@ -371,32 +405,29 @@
       }
     }
 
-    function loadAllData() {
-      loadCashflow(); loadPelanggan(); loadSesi(); loadPembekal(); loadSyif();
-    }
-
     // ================= CASHFLOW =================
     let cashflowData = [];
     function simpanCashflow() {
       const type = document.getElementById('cf-type').value;
-      const desc = document.getElementById('cf-desc').value;
+      const desc = document.getElementById('cf-desc').value.trim();
       const amount = parseFloat(document.getElementById('cf-amount').value);
       if (!desc || isNaN(amount)) return alert("Sila isi keterangan & jumlah.");
       db.collection("cashflow").add({ type, desc, amount, date: new Date().toISOString() })
         .then(() => { document.getElementById('cf-desc').value = ''; document.getElementById('cf-amount').value = ''; });
     }
     function loadCashflow() {
-      db.collection("cashflow").orderBy("date", "desc").onSnapshot((snapshot) => {
+      return db.collection("cashflow").orderBy("date", "desc").onSnapshot((snapshot) => {
         const tbody = document.querySelector('#table-cashflow tbody');
-        tbody.innerHTML = ''; cashflowData = [];
+        const rows = []; cashflowData = [];
         snapshot.forEach((doc) => {
           const data = doc.data(); cashflowData.push(data);
           const dateStr = new Date(data.date).toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' });
           const sign = data.type === 'masuk' ? '+' : '-';
           const color = data.type === 'masuk' ? 'text-success' : 'text-danger';
-          tbody.innerHTML += `<tr><td>${dateStr}</td><td>${data.desc}</td><td class="${color}">${sign} RM ${data.amount.toFixed(2)}</td></tr>`;
+          rows.push(`<tr><td>${dateStr}</td><td>${esc(data.desc)}</td><td class="${color}">${sign} RM ${Number(data.amount).toFixed(2)}</td></tr>`);
         });
-      });
+        tbody.innerHTML = rows.join('');
+      }, (err) => console.error("Cashflow:", err));
     }
     function exportExcel() {
       if (cashflowData.length === 0) return alert("Tiada data.");
@@ -404,7 +435,8 @@
       cashflowData.forEach(row => {
         const dateStr = new Date(row.date).toLocaleDateString('ms-MY');
         const jenis = row.type === 'masuk' ? 'Masuk' : 'Keluar';
-        csvContent += `"${dateStr}","${jenis}","${row.desc}",${row.amount}\n`;
+        const desc = String(row.desc).replace(/"/g, '""');
+        csvContent += `"${dateStr}","${jenis}","${desc}",${row.amount}\n`;
       });
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
@@ -413,28 +445,29 @@
 
     // ================= PELANGGAN =================
     function simpanPelanggan() {
-      const name = document.getElementById('plg-name').value;
-      const phone = document.getElementById('plg-phone').value;
+      const name = document.getElementById('plg-name').value.trim();
+      const phone = document.getElementById('plg-phone').value.trim();
       const status = document.getElementById('plg-status').value;
       if (!name) return alert("Sila isi nama.");
       db.collection("pelanggan").add({ name, phone, status })
         .then(() => { document.getElementById('plg-name').value = ''; document.getElementById('plg-phone').value = ''; });
     }
     function loadPelanggan() {
-      db.collection("pelanggan").onSnapshot((snapshot) => {
+      return db.collection("pelanggan").onSnapshot((snapshot) => {
         const tbody = document.querySelector('#table-pelanggan tbody');
-        tbody.innerHTML = ''; let count = 0;
+        const rows = []; let count = 0;
         snapshot.forEach((doc) => {
           const data = doc.data(); count++;
-          tbody.innerHTML += `<tr><td>${data.name}</td><td>${data.phone}</td><td>${data.status}</td></tr>`;
+          rows.push(`<tr><td>${esc(data.name)}</td><td>${esc(data.phone)}</td><td>${esc(data.status)}</td></tr>`);
         });
+        tbody.innerHTML = rows.join('');
         document.getElementById('dash-pelanggan').innerText = count;
-      });
+      }, (err) => console.error("Pelanggan:", err));
     }
 
     // ================= SESI KOLAM =================
     function simpanSesi() {
-      const nama = document.getElementById('sesi-nama').value;
+      const nama = document.getElementById('sesi-nama').value.trim();
       const kolam = document.getElementById('sesi-kolam').value;
       const harga = parseFloat(document.getElementById('sesi-harga').value);
       if (!nama || isNaN(harga)) return alert("Sila isi nama & harga.");
@@ -442,75 +475,74 @@
         .then(() => { document.getElementById('sesi-nama').value = ''; document.getElementById('sesi-harga').value = ''; });
     }
     function loadSesi() {
-      db.collection("sesi").orderBy("date", "desc").onSnapshot((snapshot) => {
+      return db.collection("sesi").orderBy("date", "desc").onSnapshot((snapshot) => {
         const tbody = document.querySelector('#table-sesi tbody');
-        tbody.innerHTML = '';
+        const rows = [];
+        const todayStr = new Date().toDateString();
+        let sesiHariIni = 0, hasilHariIni = 0;
         snapshot.forEach((doc) => {
           const data = doc.data();
-          const timeStr = new Date(data.date).toLocaleTimeString('ms-MY', { hour: '2-digit', minute:'2-digit' });
-          tbody.innerHTML += `<tr><td>${timeStr}</td><td>${data.nama}</td><td>${data.kolam}</td><td>RM ${data.harga}</td></tr>`;
+          const d = new Date(data.date);
+          if (d.toDateString() === todayStr) { sesiHariIni++; hasilHariIni += Number(data.harga) || 0; }
+          const timeStr = d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute:'2-digit' });
+          rows.push(`<tr><td>${timeStr}</td><td>${esc(data.nama)}</td><td>${esc(data.kolam)}</td><td>RM ${Number(data.harga).toFixed(2)}</td></tr>`);
         });
-      });
+        tbody.innerHTML = rows.join('');
+        document.getElementById('dash-sesi').innerText = sesiHariIni;
+        document.getElementById('dash-hasil').innerText = 'RM ' + hasilHariIni.toFixed(2);
+      }, (err) => console.error("Sesi:", err));
     }
 
     // ================= PEMBEKAL =================
+    let pembekalData = {};
     function simpanPembekal() {
-      const nama = document.getElementById('pb-nama').value;
-      const barang = document.getElementById('pb-barang').value;
+      const nama = document.getElementById('pb-nama').value.trim();
+      const barang = document.getElementById('pb-barang').value.trim();
       if (!nama || !barang) return alert("Sila isi nama & barang.");
       db.collection("pembekal").add({ nama, barang, date: new Date().toISOString() })
         .then(() => { document.getElementById('pb-nama').value = ''; document.getElementById('pb-barang').value = ''; });
     }
     function loadPembekal() {
-      db.collection("pembekal").orderBy("date", "desc").onSnapshot((snapshot) => {
+      return db.collection("pembekal").orderBy("date", "desc").onSnapshot((snapshot) => {
         const tbody = document.querySelector('#table-pembekal tbody');
-        tbody.innerHTML = '';
+        const rows = []; pembekalData = {};
         snapshot.forEach((doc) => {
           const data = doc.data();
-          tbody.innerHTML += `<tr>
-            <td>${data.nama}</td><td>${data.barang}</td>
-            <td><button class="btn-print" onclick="printResit('${data.nama}', '${data.barang}')">🖨️ Cetak</button></td>
-          </tr>`;
+          pembekalData[doc.id] = data;
+          rows.push(`<tr>
+            <td>${esc(data.nama)}</td><td>${esc(data.barang)}</td>
+            <td><button class="btn-print" onclick="printResit('${doc.id}')">🖨️ Cetak</button></td>
+          </tr>`);
         });
-      });
+        tbody.innerHTML = rows.join('');
+      }, (err) => console.error("Pembekal:", err));
     }
 
-    function printResit(pembekal, barang) {
-      const printArea = document.getElementById('print-area');
-      
-      const letterhead = `
-        <div class="letterhead">
-          <div class="letterhead-left">
-            <div class="letterhead-title">KOLAM PANCING UDANG GALAH SAHABAT</div>
-            <div class="letterhead-sub">
-              Untuk Pertanyaan Hubungi: <strong>MR ALOM 018-2970763</strong><br>
-              WAZE: KOLAM PANCING UDANG GALAH SAHABAT<br>
-              FB: KOLAM PANCING UDANG GALAH SAHABAT
-            </div>
-          </div>
-          <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" class="letterhead-logo">
-        </div>
-      `;
+    // ================= FUNGSI CETAK =================
+    function cetak(htmlIsi) {
+      document.getElementById('print-body').innerHTML = htmlIsi;
+      const img = document.getElementById('print-logo');
+      const siap = (img.decode ? img.decode() : Promise.resolve()).catch(() => {});
+      siap.then(() => requestAnimationFrame(() => window.print()));
+    }
 
-      printArea.innerHTML = `
-        ${letterhead}
-        <h2 style="text-align:center; margin-bottom:5px; color: #000;">RESIT PEMBELIAN STOK</h2>
-        <p style="text-align:center; font-size:12px; margin-bottom:20px; color: #333;">Dijana pada: ${new Date().toLocaleDateString('ms-MY')}</p>
-        
-        <p style="color: #000;"><strong>Pembekal:</strong> ${pembekal}</p>
-        <p style="color: #000;"><strong>Barang:</strong> ${barang}</p>
-        <hr style="margin:15px 0; border-top: 1px solid #000;">
-        
-        <p style="text-align:center; margin-top:30px; font-size:12px; color: #000;">Terima Kasih.</p>
-      `;
-
-      setTimeout(() => { window.print(); }, 500);
+    function printResit(id) {
+      const d = pembekalData[id];
+      if (!d) return;
+      cetak(`
+        <h2 style="text-align:center; margin-bottom:5px; color:#000;">RESIT PEMBELIAN STOK</h2>
+        <p style="text-align:center; font-size:12px; margin-bottom:20px; color:#333;">Dijana pada: ${new Date().toLocaleDateString('ms-MY')}</p>
+        <p style="color:#000;"><strong>Pembekal:</strong> ${esc(d.nama)}</p>
+        <p style="color:#000;"><strong>Barang:</strong> ${esc(d.barang)}</p>
+        <hr style="margin:15px 0; border-top:1px solid #000;">
+        <p style="text-align:center; margin-top:30px; font-size:12px; color:#000;">Terima Kasih.</p>
+      `);
     }
 
     // ================= RESIT & INVOICE (PELANGGAN) =================
     let resitItems = [];
     function tambahItemResit() {
-      const item = document.getElementById('inv-item').value;
+      const item = document.getElementById('inv-item').value.trim();
       const harga = parseFloat(document.getElementById('inv-harga').value);
       const qty = parseFloat(document.getElementById('inv-qty').value);
       
@@ -525,22 +557,23 @@
 
     function paparItemResit() {
       const tbody = document.querySelector('#table-resit tbody');
-      tbody.innerHTML = '';
+      const rows = [];
       let total = 0;
       
       resitItems.forEach((data, index) => {
         const subtotal = data.harga * data.qty;
         total += subtotal;
-        tbody.innerHTML += `
+        rows.push(`
           <tr>
-            <td>${data.item}</td>
+            <td>${esc(data.item)}</td>
             <td>RM ${data.harga.toFixed(2)}</td>
             <td>${data.qty}</td>
             <td>RM ${subtotal.toFixed(2)}</td>
             <td><button class="btn-print" style="background:var(--danger)" onclick="padamItemResit(${index})">Buang</button></td>
           </tr>
-        `;
+        `);
       });
+      tbody.innerHTML = rows.join('');
       document.getElementById('resit-total').innerText = `RM ${total.toFixed(2)}`;
     }
 
@@ -550,93 +583,300 @@
     }
 
     function cetakResitPelanggan() {
-      const nama = document.getElementById('inv-nama').value;
+      const nama = document.getElementById('inv-nama').value.trim();
       if (!nama) return alert("Sila masukkan nama pelanggan.");
       if (resitItems.length === 0) return alert("Sila tambah item dulu.");
 
-      let tableRows = '';
+      const rows = [];
       let total = 0;
       resitItems.forEach(data => {
         const subtotal = data.harga * data.qty;
         total += subtotal;
-        tableRows += `
+        rows.push(`
           <tr>
-            <td style="padding: 8px 0; border-bottom: 1px solid #000; color: #000;">${data.item}</td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #000; text-align:center; color: #000;">${data.qty}</td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #000; text-align:right; color: #000;">RM ${data.harga.toFixed(2)}</td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #000; text-align:right; color: #000;">RM ${subtotal.toFixed(2)}</td>
+            <td style="padding:8px 0; border-bottom:1px solid #000; color:#000;">${esc(data.item)}</td>
+            <td style="padding:8px 0; border-bottom:1px solid #000; text-align:center; color:#000;">${data.qty}</td>
+            <td style="padding:8px 0; border-bottom:1px solid #000; text-align:right; color:#000;">RM ${data.harga.toFixed(2)}</td>
+            <td style="padding:8px 0; border-bottom:1px solid #000; text-align:right; color:#000;">RM ${subtotal.toFixed(2)}</td>
           </tr>
-        `;
+        `);
       });
 
-      const letterhead = `
-        <div class="letterhead">
-          <div class="letterhead-left">
-            <div class="letterhead-title">KOLAM PANCING UDANG GALAH SAHABAT</div>
-            <div class="letterhead-sub">
-              Untuk Pertanyaan Hubungi: <strong>MR ALOM 018-2970763</strong><br>
-              WAZE: KOLAM PANCING UDANG GALAH SAHABAT<br>
-              FB: KOLAM PANCING UDANG GALAH SAHABAT
-            </div>
-          </div>
-          <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" class="letterhead-logo">
-        </div>
-      `;
-
-      const printArea = document.getElementById('print-area');
-      printArea.innerHTML = `
-        ${letterhead}
-        <h2 style="text-align:center; margin-bottom:5px; color: #000;">RESIT RASMI</h2>
-        <p style="text-align:center; font-size:12px; margin-bottom:20px; color: #333;">Dijana pada: ${new Date().toLocaleDateString('ms-MY')}</p>
+      cetak(`
+        <h2 style="text-align:center; margin-bottom:5px; color:#000;">RESIT RASMI</h2>
+        <p style="text-align:center; font-size:12px; margin-bottom:20px; color:#333;">Dijana pada: ${new Date().toLocaleDateString('ms-MY')}</p>
         
-        <div style="display:flex; justify-content:space-between; margin-bottom: 15px; color: #000;">
-            <div><strong>Pelanggan:</strong> ${nama}</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:#000;">
+          <div><strong>Pelanggan:</strong> ${esc(nama)}</div>
         </div>
-        <hr style="margin:15px 0; border-top: 1px dashed #000;">
+        <hr style="margin:15px 0; border-top:1px dashed #000;">
         
-        <table style="width:100%; font-size:12px; margin-bottom:15px; border-collapse: collapse;">
+        <table style="width:100%; font-size:12px; margin-bottom:15px; border-collapse:collapse;">
           <thead>
             <tr>
-              <th style="text-align:left; padding-bottom:5px; border-bottom: 2px solid #000; color: #000;">Item</th>
-              <th style="text-align:center; padding-bottom:5px; border-bottom: 2px solid #000; color: #000;">Qty</th>
-              <th style="text-align:right; padding-bottom:5px; border-bottom: 2px solid #000; color: #000;">Harga</th>
-              <th style="text-align:right; padding-bottom:5px; border-bottom: 2px solid #000; color: #000;">Jumlah</th>
+              <th style="text-align:left; padding-bottom:5px; border-bottom:2px solid #000; color:#000;">Item</th>
+              <th style="text-align:center; padding-bottom:5px; border-bottom:2px solid #000; color:#000;">Qty</th>
+              <th style="text-align:right; padding-bottom:5px; border-bottom:2px solid #000; color:#000;">Harga</th>
+              <th style="text-align:right; padding-bottom:5px; border-bottom:2px solid #000; color:#000;">Jumlah</th>
             </tr>
           </thead>
-          <tbody>${tableRows}</tbody>
+          <tbody>${rows.join('')}</tbody>
         </table>
         
-        <hr style="margin:15px 0; border-top: 1px dashed #000;">
-        <h3 style="text-align:right; color: #000;">TOTAL: RM ${total.toFixed(2)}</h3>
+        <hr style="margin:15px 0; border-top:1px dashed #000;">
+        <h3 style="text-align:right; color:#000;">TOTAL: RM ${total.toFixed(2)}</h3>
         
-        <p style="text-align:center; margin-top:30px; font-size:12px; color: #000;">Terima Kasih Kerana Memancing Di Sini!</p>
-      `;
-
-      // Delay sikit supaya logo sempat load, pastu panggil print
-      setTimeout(() => { window.print(); }, 500);
+        <p style="text-align:center; margin-top:30px; font-size:12px; color:#000;">Terima Kasih Kerana Memancing Di Sini!</p>
+      `);
     }
 
     // ================= SYIF & TUGASAN (HR) =================
     function simpanSyif() {
-      const nama = document.getElementById('syif-nama').value;
-      const tugas = document.getElementById('syif-tugas').value;
+      const nama = document.getElementById('syif-nama').value.trim();
+      const tugas = document.getElementById('syif-tugas').value.trim();
       if (!nama || !tugas) return alert("Sila isi nama & tugas.");
       db.collection("syif").add({ nama, tugas, status: "Belum Siap", date: new Date().toISOString() })
         .then(() => { document.getElementById('syif-tugas').value = ''; });
     }
+    function tukarStatusSyif(id, statusSemasa) {
+      const baru = statusSemasa === 'Siap' ? 'Belum Siap' : 'Siap';
+      db.collection("syif").doc(id).update({ status: baru });
+    }
     function loadSyif() {
-      db.collection("syif").orderBy("date", "desc").onSnapshot((snapshot) => {
+      return db.collection("syif").orderBy("date", "desc").onSnapshot((snapshot) => {
         const tbody = document.querySelector('#table-syif tbody');
-        tbody.innerHTML = '';
+        const rows = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
           const color = data.status === 'Siap' ? 'text-success' : 'text-danger';
-          tbody.innerHTML += `<tr><td>${data.nama}</td><td>${data.tugas}</td><td class="${color}">${data.status}</td></tr>`;
+          const labelBtn = data.status === 'Siap' ? '↩️ Batal' : '✅ Tanda Siap';
+          rows.push(`<tr>
+            <td>${esc(data.nama)}</td><td>${esc(data.tugas)}</td>
+            <td class="${color}">${esc(data.status)}</td>
+            <td><button class="btn-print" onclick="tukarStatusSyif('${doc.id}', '${data.status}')">${labelBtn}</button></td>
+          </tr>`);
         });
-      });
+        tbody.innerHTML = rows.join('');
+      }, (err) => console.error("Syif:", err));
     }
 
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+    // ================= GAJI & PEKERJA (Bos sahaja) =================
+    (function () {
+      let pekerja = {}, gajiList = [], unsubsGaji = [];
+      const val = id => document.getElementById(id).value;
+      const num = id => parseFloat(val(id)) || 0;
+      const rm = n => 'RM ' + (Number(n) || 0).toFixed(2);
+
+      const menu = document.createElement('div');
+      menu.className = 'menu-item bos-only';
+      menu.style.display = 'none';
+      menu.textContent = '💵 Gaji & Pekerja';
+      menu.onclick = () => tukarPage('gaji', menu);
+      document.querySelector('.sidebar').appendChild(menu);
+
+      const page = document.createElement('div');
+      page.id = 'page-gaji';
+      page.className = 'page-section';
+      page.innerHTML = `
+        <div class="card-panel">
+          <h2>Daftar Pekerja</h2>
+          <div class="form-row">
+            <input type="text" id="g-nama" placeholder="Nama Pekerja">
+            <input type="text" id="g-jawatan" placeholder="Jawatan">
+            <input type="text" id="g-tel" placeholder="No. Telefon">
+            <input type="number" id="g-pokok" placeholder="Gaji Pokok (RM)">
+            <button class="btn-save" onclick="gaji.simpanPekerja()">Daftar</button>
+          </div>
+          <div class="table-responsive">
+            <table id="table-pekerja">
+              <thead><tr><th>Nama</th><th>Jawatan</th><th>Telefon</th><th>Gaji Pokok</th><th>Tindakan</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <h2>Proses Gaji Bulanan</h2>
+          <div class="form-row">
+            <select id="g-pilih" onchange="gaji.isiPokok()"></select>
+            <input type="month" id="g-bulan">
+            <input type="number" id="g-pokok2" placeholder="Gaji Pokok" oninput="gaji.kira()">
+            <input type="number" id="g-elaun" placeholder="Elaun" oninput="gaji.kira()">
+            <input type="number" id="g-ot" placeholder="OT / Bonus" oninput="gaji.kira()">
+          </div>
+          <div class="form-row">
+            <input type="number" id="g-kwsp" placeholder="Potongan KWSP" oninput="gaji.kira()">
+            <input type="number" id="g-perkeso" placeholder="Potongan PERKESO" oninput="gaji.kira()">
+            <input type="number" id="g-lain" placeholder="Potongan Lain" oninput="gaji.kira()">
+          </div>
+          <div class="flex-between">
+            <label style="font-size:14px;font-weight:500;">
+              <input type="checkbox" id="g-cf" checked> Rekod dalam Cashflow (Duit Keluar)
+            </label>
+            <h3>Gaji Bersih: <span id="g-bersih" style="color:var(--primary);">RM 0.00</span></h3>
+          </div>
+          <button class="btn-save" onclick="gaji.simpanGaji()">Simpan Gaji</button>
+        </div>
+
+        <div class="card-panel">
+          <div class="flex-between">
+            <h2>Rekod Gaji</h2>
+            <button class="btn-excel" onclick="gaji.exportCSV()">📥 Export Excel</button>
+          </div>
+          <div class="form-row">
+            <input type="month" id="g-tapis" onchange="gaji.papar()">
+            <button class="btn-print" onclick="document.getElementById('g-tapis').value='';gaji.papar()">Semua Bulan</button>
+          </div>
+          <h3 style="margin-bottom:10px;">Jumlah: <span id="g-jumlah" style="color:var(--primary);">RM 0.00</span></h3>
+          <div class="table-responsive">
+            <table id="table-gaji">
+              <thead><tr><th>Bulan</th><th>Nama</th><th>Pokok</th><th>Elaun+OT</th><th>Potongan</th><th>Bersih</th><th>Tindakan</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>`;
+      document.querySelector('.main-content').appendChild(page);
+      document.getElementById('g-bulan').value = new Date().toISOString().slice(0, 7);
+
+      const asal = window.tukarPage;
+      window.tukarPage = function (nama, el) {
+        asal(nama, el);
+        if (nama === 'gaji') document.getElementById('page-title').innerText = 'Gaji & Pekerja';
+      };
+
+      function simpanPekerja() {
+        const nama = val('g-nama').trim(), jawatan = val('g-jawatan').trim();
+        const tel = val('g-tel').trim(), pokok = num('g-pokok');
+        if (!nama || !pokok) return alert('Sila isi nama dan gaji pokok.');
+        db.collection('pekerja').add({ nama, jawatan, tel, pokok, date: new Date().toISOString() })
+          .then(() => ['g-nama', 'g-jawatan', 'g-tel', 'g-pokok'].forEach(i => document.getElementById(i).value = ''));
+      }
+      function padamPekerja(id) {
+        if (confirm('Buang pekerja ini? (Rekod gaji lama kekal)')) db.collection('pekerja').doc(id).delete();
+      }
+      function loadPekerja() {
+        return db.collection('pekerja').orderBy('date').onSnapshot(snap => {
+          pekerja = {}; const rows = [], opts = ['<option value="">-- Pilih Pekerja --</option>'];
+          snap.forEach(d => {
+            const p = d.data(); pekerja[d.id] = p;
+            rows.push(`<tr><td>${esc(p.nama)}</td><td>${esc(p.jawatan)}</td><td>${esc(p.tel)}</td><td>${rm(p.pokok)}</td>
+              <td><button class="btn-print" style="background:var(--danger)" onclick="gaji.padamPekerja('${d.id}')">Buang</button></td></tr>`);
+            opts.push(`<option value="${d.id}">${esc(p.nama)}</option>`);
+          });
+          document.querySelector('#table-pekerja tbody').innerHTML = rows.join('');
+          const sel = document.getElementById('g-pilih'), lama = sel.value;
+          sel.innerHTML = opts.join(''); sel.value = lama;
+        }, e => console.error('Pekerja:', e));
+      }
+
+      function isiPokok() {
+        const p = pekerja[val('g-pilih')];
+        document.getElementById('g-pokok2').value = p ? p.pokok : '';
+        kira();
+      }
+      function jumlahBersih() {
+        return num('g-pokok2') + num('g-elaun') + num('g-ot') - num('g-kwsp') - num('g-perkeso') - num('g-lain');
+      }
+      function kira() { document.getElementById('g-bersih').innerText = rm(jumlahBersih()); }
+
+      function simpanGaji() {
+        const id = val('g-pilih'), p = pekerja[id], bulan = val('g-bulan');
+        if (!p || !bulan) return alert('Sila pilih pekerja dan bulan.');
+        const rekod = {
+          pekerjaId: id, nama: p.nama, jawatan: p.jawatan || '', bulan,
+          pokok: num('g-pokok2'), elaun: num('g-elaun'), ot: num('g-ot'),
+          kwsp: num('g-kwsp'), perkeso: num('g-perkeso'), lain: num('g-lain'),
+          bersih: jumlahBersih(), date: new Date().toISOString()
+        };
+        if (gajiList.some(g => g.pekerjaId === id && g.bulan === bulan) &&
+            !confirm('Gaji pekerja ni untuk bulan tersebut dah ada. Simpan lagi?')) return;
+        db.collection('gaji').add(rekod).then(() => {
+          if (document.getElementById('g-cf').checked) {
+            db.collection('cashflow').add({ type: 'keluar', desc: `Gaji ${p.nama} (${bulan})`, amount: rekod.bersih, date: rekod.date });
+          }
+          ['g-elaun', 'g-ot', 'g-kwsp', 'g-perkeso', 'g-lain'].forEach(i => document.getElementById(i).value = '');
+          kira(); alert('Gaji disimpan.');
+        });
+      }
+      function padamGaji(id) {
+        if (confirm('Buang rekod gaji ini? (Entri Cashflow kekal, buang manual jika perlu)')) db.collection('gaji').doc(id).delete();
+      }
+      function loadGaji() {
+        return db.collection('gaji').orderBy('date', 'desc').onSnapshot(snap => {
+          gajiList = []; snap.forEach(d => gajiList.push({ id: d.id, ...d.data() })); papar();
+        }, e => console.error('Gaji:', e));
+      }
+      function senarai() {
+        const b = val('g-tapis');
+        return b ? gajiList.filter(g => g.bulan === b) : gajiList;
+      }
+      function papar() {
+        let jumlah = 0;
+        const rows = senarai().map(g => {
+          jumlah += g.bersih;
+          return `<tr><td>${esc(g.bulan)}</td><td>${esc(g.nama)}</td><td>${rm(g.pokok)}</td><td>${rm(g.elaun + g.ot)}</td>
+            <td class="text-danger">${rm(g.kwsp + g.perkeso + g.lain)}</td><td class="text-success">${rm(g.bersih)}</td>
+            <td><button class="btn-print" onclick="gaji.slip('${g.id}')">🖨️ Slip</button>
+            <button class="btn-print" style="background:var(--danger)" onclick="gaji.padamGaji('${g.id}')">Buang</button></td></tr>`;
+        });
+        document.querySelector('#table-gaji tbody').innerHTML = rows.join('');
+        document.getElementById('g-jumlah').innerText = rm(jumlah);
+      }
+
+      function slip(id) {
+        const g = gajiList.find(x => x.id === id); if (!g) return;
+        const baris = (a, b) => `<tr><td style="padding:6px 0;border-bottom:1px solid #000;color:#000;">${a}</td>
+          <td style="padding:6px 0;border-bottom:1px solid #000;text-align:right;color:#000;">${rm(b)}</td></tr>`;
+        cetak(`
+          <h2 style="text-align:center;margin-bottom:5px;color:#000;">SLIP GAJI</h2>
+          <p style="text-align:center;font-size:12px;margin-bottom:20px;color:#333;">Bulan: ${esc(g.bulan)}</p>
+          <p style="color:#000;"><strong>Nama:</strong> ${esc(g.nama)}</p>
+          <p style="color:#000;"><strong>Jawatan:</strong> ${esc(g.jawatan)}</p>
+          <hr style="margin:15px 0;border-top:1px dashed #000;">
+          <table style="width:100%;font-size:13px;border-collapse:collapse;">
+            ${baris('Gaji Pokok', g.pokok)}${baris('Elaun', g.elaun)}${baris('OT / Bonus', g.ot)}
+            ${baris('Potongan KWSP', -g.kwsp)}${baris('Potongan PERKESO', -g.perkeso)}${baris('Potongan Lain', -g.lain)}
+          </table>
+          <h3 style="text-align:right;margin-top:15px;color:#000;">GAJI BERSIH: ${rm(g.bersih)}</h3>
+          <p style="margin-top:50px;font-size:12px;color:#000;">Tandatangan Pekerja: ____________________</p>`);
+      }
+
+      function exportCSV() {
+        const data = senarai();
+        if (!data.length) return alert('Tiada data.');
+        let csv = '\uFEFFBulan,Nama,Jawatan,Gaji Pokok,Elaun,OT/Bonus,KWSP,PERKESO,Lain,Gaji Bersih\n';
+        data.forEach(g => {
+          csv += `"${g.bulan}","${String(g.nama).replace(/"/g, '""')}","${String(g.jawatan).replace(/"/g, '""')}",${g.pokok},${g.elaun},${g.ot},${g.kwsp},${g.perkeso},${g.lain},${g.bersih}\n`;
+        });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        a.download = `Gaji_${val('g-tapis') || 'Semua'}.csv`; a.click();
+      }
+
+      auth.onAuthStateChanged(user => {
+        unsubsGaji.forEach(u => u && u()); unsubsGaji = [];
+        if (user && BOS_UIDS.includes(user.uid)) {
+          menu.style.display = 'flex';
+          unsubsGaji.push(loadPekerja(), loadGaji());
+        }
+      });
+
+      window.gaji = { simpanPekerja, padamPekerja, isiPokok, kira, simpanGaji, padamGaji, papar, slip, exportCSV };
+    })();
+
+    // ================= SERVICE WORKER (auto-update) =================
+    if ('serviceWorker' in navigator) {
+      const adaController = !!navigator.serviceWorker.controller;
+      let dahReload = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!adaController || dahReload) return;
+        dahReload = true;
+        location.reload();
+      });
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+        .then(reg => reg.update())
+        .catch(err => console.error('SW:', err));
+    }
   </script>
 </body>
 </html>
