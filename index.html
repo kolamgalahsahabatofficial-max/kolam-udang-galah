@@ -10,90 +10,84 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    /* === TEMA WARNA HR STYLE === */
     :root {
-      --primary: #0EA5E9; 
-      --accent: #F97316; 
-      --bg-color: #F8FAFC; 
-      --text-dark: #1E293B;
-      --text-light: #64748B;
-      --white: #FFFFFF;
-      --success: #14B8A6;
-      --danger: #EF4444;
+      --primary: #0EA5E9; --accent: #F97316; --bg-color: #F8FAFC; 
+      --text-dark: #1E293B; --text-light: #64748B; --white: #FFFFFF;
+      --success: #14B8A6; --danger: #EF4444;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-
-    /* --- LOGIN SCREEN --- */
     body { background-color: var(--bg-color); color: var(--text-dark); min-height: 100vh; }
     
+    /* LOGIN */
     .login-container {
       background-color: var(--white); padding: 40px 30px; border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 90%; max-width: 400px;
       text-align: center; margin: 10vh auto 0 auto;
     }
-    .logo-text { font-size: 24px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+    .logo-text { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
     .logo-text span { color: var(--accent); }
     .subtitle { font-size: 14px; color: var(--text-light); margin-bottom: 30px; }
     .input-group { margin-bottom: 15px; text-align: left; }
     .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-    .input-group input { width: 100%; padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; }
+    .input-group input, .input-group select { width: 100%; padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; }
     .btn-primary { width: 100%; padding: 14px; background-color: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
     .error-msg { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
 
-    /* --- DASHBOARD LAYOUT --- */
+    /* DASHBOARD */
     #app-dashboard { display: none; flex-direction: row; min-height: 100vh; }
-    
-    /* Sidebar */
-    .sidebar {
-      width: 260px; background-color: var(--white); border-right: 1px solid #E2E8F0;
-      padding: 20px 0; display: flex; flex-direction: column;
-    }
+    .sidebar { width: 260px; background-color: var(--white); border-right: 1px solid #E2E8F0; padding: 20px 0; display: flex; flex-direction: column; }
     .sidebar-logo { font-size: 20px; font-weight: 700; padding: 0 20px 20px 20px; border-bottom: 1px solid #E2E8F0; margin-bottom: 20px; }
     .sidebar-logo span { color: var(--accent); }
-    .menu-item {
-      padding: 12px 20px; color: var(--text-light); font-weight: 500; font-size: 14px;
-      cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px;
-    }
+    .menu-item { padding: 12px 20px; color: var(--text-light); font-weight: 500; font-size: 14px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
     .menu-item:hover, .menu-item.active { background-color: #F1F5F9; color: var(--primary); border-right: 4px solid var(--primary); }
     
-    /* Main Content */
-    .main-content { flex: 1; padding: 30px; }
+    .main-content { flex: 1; padding: 30px; overflow-y: auto; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
     .header h1 { font-size: 24px; }
-    .user-info { font-size: 14px; color: var(--text-light); }
-    .btn-logout { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 8px 15px; border-radius: 6px; cursor: pointer; margin-left: 15px; font-weight: 600; }
+    .user-info { font-size: 14px; color: var(--text-light); display: flex; align-items: center; gap: 15px; }
+    .btn-logout { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 
-    /* Open/Closed Toggle Card */
-    .status-card {
-      background-color: var(--white); padding: 30px; border-radius: 16px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center; margin-bottom: 30px;
-      border: 2px solid var(--success);
-    }
+    /* DASHBOARD HOME */
+    .status-card { background-color: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center; margin-bottom: 30px; border: 2px solid var(--success); }
     .status-card.closed { border-color: var(--danger); }
     .status-badge { font-size: 28px; font-weight: 700; color: var(--success); margin-bottom: 10px; }
     .status-card.closed .status-badge { color: var(--danger); }
     .status-sub { color: var(--text-light); font-size: 14px; margin-bottom: 20px; }
-    .btn-toggle {
-      padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px;
-      font-weight: 600; cursor: pointer; color: var(--white); background-color: var(--danger);
-    }
+    .btn-toggle { padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; color: var(--white); background-color: var(--danger); }
     .status-card.closed .btn-toggle { background-color: var(--success); }
-
-    /* Stat Cards */
     .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
     .stat-card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
     .stat-card h3 { font-size: 14px; color: var(--text-light); margin-bottom: 10px; font-weight: 500; }
     .stat-card .value { font-size: 28px; font-weight: 700; color: var(--text-dark); }
 
+    /* PAGE: CASHFLOW */
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+    .card-panel { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
+    
+    .form-row { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    .form-row input, .form-row select { flex: 1; padding: 10px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; min-width: 150px;}
+    
+    .btn-save { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-excel { background-color: #10B981; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;}
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E2E8F0; }
+    th { background-color: #F8FAFC; font-weight: 600; color: var(--text-light); }
+    .text-success { color: var(--success); font-weight: 600; }
+    .text-danger { color: var(--danger); font-weight: 600; }
+
     @media (max-width: 768px) {
       #app-dashboard { flex-direction: column; }
-      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #E2E8F0; padding: 10px; flex-direction: row; overflow-x: auto; }
+      .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid #E2E8F0; border-right: none; }
       .sidebar-logo { display: none; }
       .menu-item { padding: 10px; white-space: nowrap; border-right: none; border-bottom: 3px solid transparent; }
       .menu-item.active { border-bottom: 3px solid var(--primary); }
       .stats-grid { grid-template-columns: 1fr; }
       .main-content { padding: 15px; }
+      .form-row { flex-direction: column; }
     }
   </style>
 </head>
@@ -121,49 +115,85 @@
     <!-- SIDEBAR MENU -->
     <div class="sidebar">
       <div class="sidebar-logo">🦐 Udang<span>Sahabat</span></div>
-      <div class="menu-item active">🏠 Dashboard</div>
-      <div class="menu-item">🎣 Kolam & Sesi</div>
-      <div class="menu-item bos-only" style="display:none;">💰 Cashflow</div>
-      <div class="menu-item">👥 Pelanggan</div>
+      <div class="menu-item active" onclick="tukarPage('dashboard', this)">🏠 Dashboard</div>
+      <div class="menu-item" onclick="tukarPage('kolam', this)">🎣 Kolam & Sesi</div>
+      <div class="menu-item bos-only" style="display:none;" onclick="tukarPage('cashflow', this)">💰 Cashflow</div>
+      <div class="menu-item" onclick="tukarPage('pelanggan', this)">👥 Pelanggan</div>
       <div class="menu-item bos-only" style="display:none;">🚚 Pembekal</div>
       <div class="menu-item bos-only" style="display:none;">🧾 Resit & Invoice</div>
       <div class="menu-item">📦 Inventori</div>
       <div class="menu-item">🗓️ Syif & Tugasan</div>
-      <div class="menu-item bos-only" style="display:none;">📈 Laporan</div>
     </div>
 
     <!-- KANDUNGAN UTAMA -->
     <div class="main-content">
       <div class="header">
-        <h1>Dashboard</h1>
+        <h1 id="page-title">Dashboard</h1>
         <div class="user-info">
           <span id="user-role">Loading...</span>
           <button class="btn-logout" onclick="prosesLogout()">Log Keluar</button>
         </div>
       </div>
 
-      <!-- OPEN / CLOSED TOGGLE -->
-      <div class="status-card" id="kolam-status-card">
-        <div class="status-badge" id="status-text">🟢 NOW WE ARE OPEN</div>
-        <div class="status-sub" id="status-sub">Dibuka sejak 8:00 AM</div>
-        <button class="btn-toggle" id="btn-toggle-status" onclick="tukarStatus()">🔴 Tutup Kolam</button>
+      <!-- ================= PAGE: DASHBOARD ================= -->
+      <div id="page-dashboard" class="page-section active">
+        <div class="status-card" id="kolam-status-card">
+          <div class="status-badge" id="status-text">🟢 NOW WE ARE OPEN</div>
+          <div class="status-sub" id="status-sub">Kolam sedang beroperasi</div>
+          <button class="btn-toggle" id="btn-toggle-status" onclick="tukarStatus()">🔴 Tutup Kolam</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Hasil Hari Ini</h3>
+            <div class="value">RM 0.00</div>
+          </div>
+          <div class="stat-card">
+            <h3>Sesi Mancing Aktif</h3>
+            <div class="value">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>Pelanggan Hari Ini</h3>
+            <div class="value">0</div>
+          </div>
+        </div>
       </div>
 
-      <!-- STATISTIK -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h3>Hasil Hari Ini</h3>
-          <div class="value">RM 0.00</div>
-        </div>
-        <div class="stat-card">
-          <h3>Sesi Mancing Aktif</h3>
-          <div class="value">0</div>
-        </div>
-        <div class="stat-card">
-          <h3>Pelanggan Hari Ini</h3>
-          <div class="value">0</div>
+      <!-- ================= PAGE: CASHFLOW ================= -->
+      <div id="page-cashflow" class="page-section">
+        <div class="card-panel">
+          <div class="flex-between">
+            <h2>Rekod Aliran Tunai</h2>
+            <button class="btn-excel" onclick="exportExcel()">📥 Export Excel</button>
+          </div>
+          
+          <div class="form-row">
+            <select id="cf-type">
+              <option value="masuk">🟢 Duit Masuk (+)</option>
+              <option value="keluar">🔴 Duit Keluar (-)</option>
+            </select>
+            <input type="text" id="cf-desc" placeholder="Keterangan (Cth: Jual udang 5kg)">
+            <input type="number" id="cf-amount" placeholder="Jumlah (RM)">
+            <button class="btn-save" onclick="simpanCashflow()">Simpan</button>
+          </div>
+
+          <div class="table-responsive">
+            <table id="table-cashflow">
+              <thead>
+                <tr>
+                  <th>Tarikh</th>
+                  <th>Keterangan</th>
+                  <th>Jumlah (RM)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Data akan masuk sini -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -178,9 +208,9 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // UID BOS KAU DAH DIMASUKKAN DI SINI
     const BOS_UID = "3Ah8hKjH6Qc54WKIfZN9rTighIO2"; 
 
+    // LOGIN / LOGOUT
     function prosesLogin() {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
@@ -188,29 +218,29 @@
 
       auth.signInWithEmailAndPassword(email, password)
         .then(() => { errorMsg.style.display = 'none'; })
-        .catch((error) => { errorMsg.style.display = 'block'; });
+        .catch(() => { errorMsg.style.display = 'block'; });
     }
 
-    function prosesLogout() {
-      auth.signOut();
-    }
+    function prosesLogout() { auth.signOut(); }
 
-    // Pantau Status Login & Role
+    // SEMAK ROLE
     auth.onAuthStateChanged((user) => {
       if (user) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-dashboard').style.display = 'flex';
         
-        // SEMAK ROLE (Bos atau Staff)
         if (user.uid === BOS_UID) {
           document.getElementById('user-role').innerText = "👑 Bos";
-          // Tunjuk semua menu bos
           document.querySelectorAll('.bos-only').forEach(el => el.style.display = 'flex');
         } else {
           document.getElementById('user-role').innerText = "👤 Staff";
-          // Sembunyi menu bos
           document.querySelectorAll('.bos-only').forEach(el => el.style.display = 'none');
+          // Jika staff, sorok page cashflow
+          document.getElementById('page-cashflow').classList.remove('active');
+          document.getElementById('page-dashboard').classList.add('active');
         }
+        
+        loadCashflow(); // Tarik data dari database
 
       } else {
         document.getElementById('login-screen').style.display = 'block';
@@ -218,7 +248,23 @@
       }
     });
 
-    // Fungsi Toggle Open/Closed
+    // FUNGSI TUKAR PAGE
+    function tukarPage(pageName, element) {
+      document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+      document.getElementById('page-' + pageName).classList.add('active');
+      
+      document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+
+      // Tukar tajuk atas
+      let title = "Dashboard";
+      if(pageName === 'cashflow') title = "Cashflow";
+      if(pageName === 'kolam') title = "Kolam & Sesi";
+      if(pageName === 'pelanggan') title = "Pelanggan";
+      document.getElementById('page-title').innerText = title;
+    }
+
+    // TOGGLE OPEN / CLOSED
     let isOpen = true;
     function tukarStatus() {
       isOpen = !isOpen;
@@ -238,6 +284,89 @@
         btn.innerHTML = "🟢 Buka Kolam";
         sub.innerText = "Kolam telah ditutup";
       }
+    }
+
+    // ================= CASHFLOW LOGIC =================
+
+    function simpanCashflow() {
+      const type = document.getElementById('cf-type').value;
+      const desc = document.getElementById('cf-desc').value;
+      const amount = parseFloat(document.getElementById('cf-amount').value);
+
+      if (!desc || isNaN(amount)) {
+        alert("Sila isi keterangan dan jumlah yang sah.");
+        return;
+      }
+
+      db.collection("cashflow").add({
+        type: type,
+        desc: desc,
+        amount: amount,
+        date: new Date().toISOString()
+      }).then(() => {
+        document.getElementById('cf-desc').value = '';
+        document.getElementById('cf-amount').value = '';
+        loadCashflow(); // Refresh table
+      });
+    }
+
+    let cashflowData = []; // Simpan data sementara untuk Export Excel
+
+    function loadCashflow() {
+      db.collection("cashflow").orderBy("date", "desc").onSnapshot((snapshot) => {
+        const tbody = document.querySelector('#table-cashflow tbody');
+        tbody.innerHTML = '';
+        cashflowData = [];
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          cashflowData.push(data);
+
+          const dateObj = new Date(data.date);
+          const dateStr = dateObj.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+          
+          const isMasuk = data.type === 'masuk';
+          const sign = isMasuk ? '+' : '-';
+          const colorClass = isMasuk ? 'text-success' : 'text-danger';
+
+          tbody.innerHTML += `
+            <tr>
+              <td>${dateStr}</td>
+              <td>${data.desc}</td>
+              <td class="${colorClass}">${sign} RM ${data.amount.toFixed(2)}</td>
+            </tr>
+          `;
+        });
+      });
+    }
+
+    // EXPORT TO EXCEL (CSV)
+    function exportExcel() {
+      if (cashflowData.length === 0) {
+        alert("Tiada data untuk diexport.");
+        return;
+      }
+
+      // Bina CSV string (guna \uFEFF untuk pastikan Excel baca huruf dgn betul)
+      let csvContent = "\uFEFFTarikh,Jenis,Keterangan,Jumlah (RM)\n";
+      
+      cashflowData.forEach(row => {
+        const dateObj = new Date(row.date);
+        const dateStr = dateObj.toLocaleDateString('ms-MY') + " " + dateObj.toLocaleTimeString('ms-MY');
+        const jenis = row.type === 'masuk' ? 'Masuk' : 'Keluar';
+        csvContent += `"${dateStr}","${jenis}","${row.desc}",${row.amount}\n`;
+      });
+
+      // Create download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Cashflow_Kolam_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     // Service worker
