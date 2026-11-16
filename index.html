@@ -300,7 +300,9 @@
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    const BOS_UID = "3Ah8hKjH6Qc54WKIfZN9rTighIO2"; 
+    
+    // DUA UID BOS DIMASUKKAN DI SINI
+    const BOS_UIDS = ["3Ah8hKjH6Qc54WKIfZN9rTighIO2", "lR7GhSu7HOfQLCEQqBTgXTv7ONm2"]; 
 
     function prosesLogin() {
       const email = document.getElementById('login-email').value;
@@ -316,7 +318,8 @@
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-dashboard').style.display = 'flex';
         
-        if (user.uid === BOS_UID) {
+        // SEMAK KEDUA-DUA UID
+        if (BOS_UIDS.includes(user.uid)) {
           document.getElementById('user-role').innerText = "👑 Bos";
           document.querySelectorAll('.bos-only').forEach(el => el.style.display = 'flex');
         } else {
