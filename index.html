@@ -10,19 +10,11 @@
   <link rel="preload" href="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" as="image">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- LIBRARY UNTUK JANA PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
   <style>
     :root {
-      --primary: #0EA5E9; /* Biru Laut */
-      --accent: #1E3A8A; /* Biru Gelap */
-      --bg-color: #F8FAFC; /* Kelabu Cerah */
-      --text-dark: #1E293B;
-      --text-light: #64748B;
-      --white: #FFFFFF;
-      --success: #10B981; /* Hijau */
-      --danger: #EF4444; /* Merah */
+      --primary: #0EA5E9; --accent: #1E3A8A; --bg-color: #F8FAFC; 
+      --text-dark: #1E293B; --text-light: #64748B; --white: #FFFFFF;
+      --success: #10B981; --danger: #EF4444;
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -87,15 +79,23 @@
     .text-success { color: var(--success); font-weight: 600; }
     .text-danger { color: var(--danger); font-weight: 600; }
 
-    /* PRINT AREA (Sembunyi dari pandangan, tapi wujud untuk jana PDF) */
-    #print-area { position: absolute; left: -9999px; top: -9999px; width: 700px; background: #FFF; padding: 30px; font-family: Arial, sans-serif; color: #000; }
+    /* PRINT AREA - DISOROK BIASA */
+    #print-area { display: none; }
     
-    /* STYLE UNTUK LETTERHEAD RESIT */
-    .letterhead { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
-    .letterhead-left { text-align: left; }
-    .letterhead-title { font-size: 20px; font-weight: bold; color: #000; margin-bottom: 5px; }
-    .letterhead-sub { font-size: 12px; color: #000; line-height: 1.4; }
-    .letterhead-logo { height: 80px; object-fit: contain; }
+    /* BILA PRINT, TUNJUK RESIT SAHAJA */
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { 
+        position: absolute; left: 0; top: 0; width: 100%; 
+        display: block !important; background: #fff; padding: 20px;
+        font-family: Arial, sans-serif; color: #000;
+      }
+      .letterhead { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+      .letterhead-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+      .letterhead-sub { font-size: 12px; line-height: 1.4; }
+      .letterhead-logo { height: 80px; }
+    }
     
     @media (max-width: 768px) {
       #app-dashboard { flex-direction: column; }
@@ -116,7 +116,7 @@
       <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 70px; margin-bottom: 10px; border-radius: 8px;"><br>
       Kolam Udang <span>Sahabat</span>
     </div>
-    <div class="subtitle">Sistem Pengurusan Galah (Corporate Edition)</div>
+    <div class="subtitle">Sistem Pengurusan Galah</div>
     <div class="input-group">
       <label>Email</label>
       <input type="email" id="login-email" placeholder="admin@kolam.com">
@@ -274,7 +274,7 @@
           
           <div class="flex-between" style="margin-top: 20px; border-top: 1px solid #E2E8F0; padding-top: 20px;">
             <h3>Total: <span id="resit-total" style="color: var(--primary);">RM 0.00</span></h3>
-            <button class="btn-excel" onclick="cetakResitPelanggan()" style="background-color: var(--accent);">📄 Share / Save PDF</button>
+            <button class="btn-excel" onclick="cetakResitPelanggan()" style="background-color: var(--accent);">🖨️ Cetak / Save PDF</button>
           </div>
         </div>
       </div>
@@ -299,6 +299,7 @@
     </div>
   </div>
 
+  <!-- KAWASAN RESIT UNTUK PRINT -->
   <div id="print-area"></div>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -468,13 +469,12 @@
           const data = doc.data();
           tbody.innerHTML += `<tr>
             <td>${data.nama}</td><td>${data.barang}</td>
-            <td><button class="btn-print" onclick="printResit('${data.nama}', '${data.barang}')">📄 PDF</button></td>
+            <td><button class="btn-print" onclick="printResit('${data.nama}', '${data.barang}')">🖨️ Cetak</button></td>
           </tr>`;
         });
       });
     }
 
-    // FUNGSI JANA PDF (PEMBEKAL)
     function printResit(pembekal, barang) {
       const printArea = document.getElementById('print-area');
       
@@ -504,27 +504,7 @@
         <p style="text-align:center; margin-top:30px; font-size:12px; color: #000;">Terima Kasih.</p>
       `;
 
-      const opt = {
-        margin: 0.5,
-        filename: `Resit_Pembekal_${pembekal}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(printArea).outputPdf('blob').then((pdfBlob) => {
-        const file = new File([pdfBlob], opt.filename, { type: 'application/pdf' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          navigator.share({ files: [file], title: 'Resit Pembekal', text: 'Resit dari Kolam Udang Sahabat' })
-            .catch(() => {
-              const url = URL.createObjectURL(pdfBlob);
-              const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
-            });
-        } else {
-          const url = URL.createObjectURL(pdfBlob);
-          const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
-        }
-      });
+      setTimeout(() => { window.print(); }, 500);
     }
 
     // ================= RESIT & INVOICE (PELANGGAN) =================
@@ -569,7 +549,6 @@
       paparItemResit();
     }
 
-    // FUNGSI JANA PDF (PELANGGAN)
     function cetakResitPelanggan() {
       const nama = document.getElementById('inv-nama').value;
       if (!nama) return alert("Sila masukkan nama pelanggan.");
@@ -633,31 +612,8 @@
         <p style="text-align:center; margin-top:30px; font-size:12px; color: #000;">Terima Kasih Kerana Memancing Di Sini!</p>
       `;
 
-      const opt = {
-        margin: 0.5,
-        filename: `Resit_Pelanggan_${nama}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(printArea).outputPdf('blob').then((pdfBlob) => {
-        const file = new File([pdfBlob], opt.filename, { type: 'application/pdf' });
-        
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          navigator.share({
-            files: [file],
-            title: 'Resit Pelanggan',
-            text: 'Resit dari Kolam Udang Sahabat'
-          }).catch(() => {
-            const url = URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
-          });
-        } else {
-          const url = URL.createObjectURL(pdfBlob);
-          const a = document.createElement('a'); a.href = url; a.download = opt.filename; a.click();
-        }
-      });
+      // Delay sikit supaya logo sempat load, pastu panggil print
+      setTimeout(() => { window.print(); }, 500);
     }
 
     // ================= SYIF & TUGASAN (HR) =================
