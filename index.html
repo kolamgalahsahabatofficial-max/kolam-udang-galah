@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
+    /* === TEMA WARNA HR STYLE === */
     :root {
       --primary: #0EA5E9; 
       --accent: #F97316; 
@@ -21,132 +22,152 @@
       --danger: #EF4444;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-dark);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
+    /* --- LOGIN SCREEN --- */
+    body { background-color: var(--bg-color); color: var(--text-dark); min-height: 100vh; }
+    
     .login-container {
-      background-color: var(--white);
-      padding: 40px 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
+      background-color: var(--white); padding: 40px 30px; border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 90%; max-width: 400px;
+      text-align: center; margin: 10vh auto 0 auto;
     }
+    .logo-text { font-size: 24px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+    .logo-text span { color: var(--accent); }
+    .subtitle { font-size: 14px; color: var(--text-light); margin-bottom: 30px; }
+    .input-group { margin-bottom: 15px; text-align: left; }
+    .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    .input-group input { width: 100%; padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; }
+    .btn-primary { width: 100%; padding: 14px; background-color: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .error-msg { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
 
-    .logo-text {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 8px;
+    /* --- DASHBOARD LAYOUT --- */
+    #app-dashboard { display: none; flex-direction: row; min-height: 100vh; }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 260px; background-color: var(--white); border-right: 1px solid #E2E8F0;
+      padding: 20px 0; display: flex; flex-direction: column;
     }
-
-    .logo-text span {
-      color: var(--accent);
+    .sidebar-logo { font-size: 20px; font-weight: 700; padding: 0 20px 20px 20px; border-bottom: 1px solid #E2E8F0; margin-bottom: 20px; }
+    .sidebar-logo span { color: var(--accent); }
+    .menu-item {
+      padding: 12px 20px; color: var(--text-light); font-weight: 500; font-size: 14px;
+      cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px;
     }
+    .menu-item:hover, .menu-item.active { background-color: #F1F5F9; color: var(--primary); border-right: 4px solid var(--primary); }
+    
+    /* Main Content */
+    .main-content { flex: 1; padding: 30px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .header h1 { font-size: 24px; }
+    .user-info { font-size: 14px; color: var(--text-light); }
+    .btn-logout { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 8px 15px; border-radius: 6px; cursor: pointer; margin-left: 15px; font-weight: 600; }
 
-    .subtitle {
-      font-size: 14px;
-      color: var(--text-light);
-      margin-bottom: 30px;
+    /* Open/Closed Toggle Card */
+    .status-card {
+      background-color: var(--white); padding: 30px; border-radius: 16px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center; margin-bottom: 30px;
+      border: 2px solid var(--success);
     }
-
-    .input-group {
-      margin-bottom: 15px;
-      text-align: left;
+    .status-card.closed { border-color: var(--danger); }
+    .status-badge { font-size: 28px; font-weight: 700; color: var(--success); margin-bottom: 10px; }
+    .status-card.closed .status-badge { color: var(--danger); }
+    .status-sub { color: var(--text-light); font-size: 14px; margin-bottom: 20px; }
+    .btn-toggle {
+      padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px;
+      font-weight: 600; cursor: pointer; color: var(--white); background-color: var(--danger);
     }
+    .status-card.closed .btn-toggle { background-color: var(--success); }
 
-    .input-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-dark);
-      margin-bottom: 5px;
-    }
+    /* Stat Cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .stat-card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .stat-card h3 { font-size: 14px; color: var(--text-light); margin-bottom: 10px; font-weight: 500; }
+    .stat-card .value { font-size: 28px; font-weight: 700; color: var(--text-dark); }
 
-    .input-group input {
-      width: 100%;
-      padding: 12px 15px;
-      border: 1px solid #CBD5E1;
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
-      transition: 0.3s;
-    }
-
-    .input-group input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-    }
-
-    .btn-primary {
-      width: 100%;
-      padding: 14px;
-      background-color: var(--primary);
-      color: var(--white);
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-      margin-top: 10px;
-    }
-
-    .btn-primary:hover {
-      background-color: #0284C7;
-    }
-
-    .error-msg {
-      color: var(--danger);
-      font-size: 13px;
-      margin-top: 10px;
-      display: none;
-    }
-
-    #app-dashboard {
-      display: none;
+    @media (max-width: 768px) {
+      #app-dashboard { flex-direction: column; }
+      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #E2E8F0; padding: 10px; flex-direction: row; overflow-x: auto; }
+      .sidebar-logo { display: none; }
+      .menu-item { padding: 10px; white-space: nowrap; border-right: none; border-bottom: 3px solid transparent; }
+      .menu-item.active { border-bottom: 3px solid var(--primary); }
+      .stats-grid { grid-template-columns: 1fr; }
+      .main-content { padding: 15px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- SKRIN LOGIN -->
   <div class="login-container" id="login-screen">
     <div class="logo-text">🦐 Kolam Udang <span>Sahabat</span></div>
     <div class="subtitle">Sistem Pengurusan Galah (HR Edition)</div>
-
     <div class="input-group">
       <label>Email</label>
       <input type="email" id="login-email" placeholder="admin@kolam.com">
     </div>
-
     <div class="input-group">
       <label>Kata Laluan</label>
       <input type="password" id="login-password" placeholder="••••••••">
     </div>
-
     <button class="btn-primary" onclick="prosesLogin()">Log Masuk</button>
     <div class="error-msg" id="login-error">Email atau password salah.</div>
   </div>
 
+  <!-- DASHBOARD UTAMA -->
   <div id="app-dashboard">
-    <h1>Selamat Datang ke Dashboard!</h1>
-    <button onclick="prosesLogout()">Log Keluar</button>
+    
+    <!-- SIDEBAR MENU -->
+    <div class="sidebar">
+      <div class="sidebar-logo">🦐 Udang<span>Sahabat</span></div>
+      <div class="menu-item active">🏠 Dashboard</div>
+      <div class="menu-item">🎣 Kolam & Sesi</div>
+      <div class="menu-item bos-only" style="display:none;">💰 Cashflow</div>
+      <div class="menu-item">👥 Pelanggan</div>
+      <div class="menu-item bos-only" style="display:none;">🚚 Pembekal</div>
+      <div class="menu-item bos-only" style="display:none;">🧾 Resit & Invoice</div>
+      <div class="menu-item">📦 Inventori</div>
+      <div class="menu-item">🗓️ Syif & Tugasan</div>
+      <div class="menu-item bos-only" style="display:none;">📈 Laporan</div>
+    </div>
+
+    <!-- KANDUNGAN UTAMA -->
+    <div class="main-content">
+      <div class="header">
+        <h1>Dashboard</h1>
+        <div class="user-info">
+          <span id="user-role">Loading...</span>
+          <button class="btn-logout" onclick="prosesLogout()">Log Keluar</button>
+        </div>
+      </div>
+
+      <!-- OPEN / CLOSED TOGGLE -->
+      <div class="status-card" id="kolam-status-card">
+        <div class="status-badge" id="status-text">🟢 NOW WE ARE OPEN</div>
+        <div class="status-sub" id="status-sub">Dibuka sejak 8:00 AM</div>
+        <button class="btn-toggle" id="btn-toggle-status" onclick="tukarStatus()">🔴 Tutup Kolam</button>
+      </div>
+
+      <!-- STATISTIK -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Hasil Hari Ini</h3>
+          <div class="value">RM 0.00</div>
+        </div>
+        <div class="stat-card">
+          <h3>Sesi Mancing Aktif</h3>
+          <div class="value">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Pelanggan Hari Ini</h3>
+          <div class="value">0</div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- FIREBASE SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -157,38 +178,69 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    // UID BOS KAU DAH DIMASUKKAN DI SINI
+    const BOS_UID = "3Ah8hKjH6Qc54WKIfZN9rTighIO2"; 
+
     function prosesLogin() {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
       const errorMsg = document.getElementById('login-error');
 
       auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          errorMsg.style.display = 'none';
-          console.log("Login berjaya:", userCredential.user.email);
-        })
-        .catch((error) => {
-          errorMsg.style.display = 'block';
-          console.error("Login error:", error.message);
-        });
+        .then(() => { errorMsg.style.display = 'none'; })
+        .catch((error) => { errorMsg.style.display = 'block'; });
     }
 
     function prosesLogout() {
-      auth.signOut().then(() => {
-        console.log("Logout berjaya");
-      });
+      auth.signOut();
     }
 
+    // Pantau Status Login & Role
     auth.onAuthStateChanged((user) => {
       if (user) {
         document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-dashboard').style.display = 'block';
+        document.getElementById('app-dashboard').style.display = 'flex';
+        
+        // SEMAK ROLE (Bos atau Staff)
+        if (user.uid === BOS_UID) {
+          document.getElementById('user-role').innerText = "👑 Bos";
+          // Tunjuk semua menu bos
+          document.querySelectorAll('.bos-only').forEach(el => el.style.display = 'flex');
+        } else {
+          document.getElementById('user-role').innerText = "👤 Staff";
+          // Sembunyi menu bos
+          document.querySelectorAll('.bos-only').forEach(el => el.style.display = 'none');
+        }
+
       } else {
         document.getElementById('login-screen').style.display = 'block';
         document.getElementById('app-dashboard').style.display = 'none';
       }
     });
 
+    // Fungsi Toggle Open/Closed
+    let isOpen = true;
+    function tukarStatus() {
+      isOpen = !isOpen;
+      const card = document.getElementById('kolam-status-card');
+      const text = document.getElementById('status-text');
+      const btn = document.getElementById('btn-toggle-status');
+      const sub = document.getElementById('status-sub');
+
+      if (isOpen) {
+        card.classList.remove('closed');
+        text.innerHTML = "🟢 NOW WE ARE OPEN";
+        btn.innerHTML = "🔴 Tutup Kolam";
+        sub.innerText = "Kolam sedang beroperasi";
+      } else {
+        card.classList.add('closed');
+        text.innerHTML = "🔴 NOW WE ARE CLOSED";
+        btn.innerHTML = "🟢 Buka Kolam";
+        sub.innerText = "Kolam telah ditutup";
+      }
+    }
+
+    // Service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
     }
