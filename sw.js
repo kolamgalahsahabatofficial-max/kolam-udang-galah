@@ -1,4 +1,4 @@
-const CACHE_NAME = 'udang-sahabat-v4';
+const CACHE_NAME = 'udang-sahabat-v5';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
