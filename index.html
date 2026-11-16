@@ -19,11 +19,7 @@
     body { background-color: var(--bg-color); color: var(--text-dark); min-height: 100vh; }
     
     /* LOGIN */
-    .login-container {
-      background-color: var(--white); padding: 40px 30px; border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 90%; max-width: 400px;
-      text-align: center; margin: 10vh auto 0 auto;
-    }
+    .login-container { background-color: var(--white); padding: 40px 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 90%; max-width: 400px; text-align: center; margin: 10vh auto 0 auto; }
     .logo-text { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
     .logo-text span { color: var(--accent); }
     .subtitle { font-size: 14px; color: var(--text-light); margin-bottom: 30px; }
@@ -33,9 +29,9 @@
     .btn-primary { width: 100%; padding: 14px; background-color: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
     .error-msg { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
 
-    /* DASHBOARD */
+    /* DASHBOARD LAYOUT */
     #app-dashboard { display: none; flex-direction: row; min-height: 100vh; }
-    .sidebar { width: 260px; background-color: var(--white); border-right: 1px solid #E2E8F0; padding: 20px 0; display: flex; flex-direction: column; }
+    .sidebar { width: 260px; background-color: var(--white); border-right: 1px solid #E2E8F0; padding: 20px 0; display: flex; flex-direction: column; overflow-y: auto; }
     .sidebar-logo { font-size: 20px; font-weight: 700; padding: 0 20px 20px 20px; border-bottom: 1px solid #E2E8F0; margin-bottom: 20px; }
     .sidebar-logo span { color: var(--accent); }
     .menu-item { padding: 12px 20px; color: var(--text-light); font-weight: 500; font-size: 14px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
@@ -60,18 +56,18 @@
     .stat-card h3 { font-size: 14px; color: var(--text-light); margin-bottom: 10px; font-weight: 500; }
     .stat-card .value { font-size: 28px; font-weight: 700; color: var(--text-dark); }
 
-    /* PAGE: CASHFLOW */
+    /* PAGE GLOBAL */
     .page-section { display: none; }
     .page-section.active { display: block; }
     .card-panel { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
     .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
-    
     .form-row { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-    .form-row input, .form-row select { flex: 1; padding: 10px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; min-width: 150px;}
-    
+    .form-row input, .form-row select { flex: 1; padding: 10px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; min-width: 120px;}
     .btn-save { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     .btn-excel { background-color: #10B981; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-print { background-color: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
 
+    /* TABLE */
     .table-responsive { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;}
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E2E8F0; }
@@ -79,6 +75,9 @@
     .text-success { color: var(--success); font-weight: 600; }
     .text-danger { color: var(--danger); font-weight: 600; }
 
+    /* PRINT RESIT */
+    #print-area { display: none; padding: 20px; font-family: monospace; }
+    
     @media (max-width: 768px) {
       #app-dashboard { flex-direction: column; }
       .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid #E2E8F0; border-right: none; }
@@ -88,6 +87,11 @@
       .stats-grid { grid-template-columns: 1fr; }
       .main-content { padding: 15px; }
       .form-row { flex-direction: column; }
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: absolute; left: 0; top: 0; width: 100%; display: block; }
     }
   </style>
 </head>
@@ -119,10 +123,9 @@
       <div class="menu-item" onclick="tukarPage('kolam', this)">🎣 Kolam & Sesi</div>
       <div class="menu-item bos-only" style="display:none;" onclick="tukarPage('cashflow', this)">💰 Cashflow</div>
       <div class="menu-item" onclick="tukarPage('pelanggan', this)">👥 Pelanggan</div>
-      <div class="menu-item bos-only" style="display:none;">🚚 Pembekal</div>
-      <div class="menu-item bos-only" style="display:none;">🧾 Resit & Invoice</div>
-      <div class="menu-item">📦 Inventori</div>
-      <div class="menu-item">🗓️ Syif & Tugasan</div>
+      <div class="menu-item bos-only" style="display:none;" onclick="tukarPage('pembekal', this)">🚚 Pembekal</div>
+      <div class="menu-item bos-only" style="display:none;" onclick="tukarPage('resit', this)">🧾 Resit & Invoice</div>
+      <div class="menu-item" onclick="tukarPage('syif', this)">🗓️ Syif & Tugasan</div>
     </div>
 
     <!-- KANDUNGAN UTAMA -->
@@ -135,38 +138,27 @@
         </div>
       </div>
 
-      <!-- ================= PAGE: DASHBOARD ================= -->
+      <!-- ================= 1. PAGE DASHBOARD ================= -->
       <div id="page-dashboard" class="page-section active">
         <div class="status-card" id="kolam-status-card">
           <div class="status-badge" id="status-text">🟢 NOW WE ARE OPEN</div>
           <div class="status-sub" id="status-sub">Kolam sedang beroperasi</div>
           <button class="btn-toggle" id="btn-toggle-status" onclick="tukarStatus()">🔴 Tutup Kolam</button>
         </div>
-
         <div class="stats-grid">
-          <div class="stat-card">
-            <h3>Hasil Hari Ini</h3>
-            <div class="value">RM 0.00</div>
-          </div>
-          <div class="stat-card">
-            <h3>Sesi Mancing Aktif</h3>
-            <div class="value">0</div>
-          </div>
-          <div class="stat-card">
-            <h3>Pelanggan Hari Ini</h3>
-            <div class="value">0</div>
-          </div>
+          <div class="stat-card"><h3>Hasil Hari Ini</h3><div class="value">RM 0.00</div></div>
+          <div class="stat-card"><h3>Sesi Mancing Aktif</h3><div class="value">0</div></div>
+          <div class="stat-card"><h3>Pelanggan Berdaftar</h3><div class="value" id="dash-pelanggan">0</div></div>
         </div>
       </div>
 
-      <!-- ================= PAGE: CASHFLOW ================= -->
+      <!-- ================= 2. PAGE CASHFLOW ================= -->
       <div id="page-cashflow" class="page-section">
         <div class="card-panel">
           <div class="flex-between">
             <h2>Rekod Aliran Tunai</h2>
             <button class="btn-excel" onclick="exportExcel()">📥 Export Excel</button>
           </div>
-          
           <div class="form-row">
             <select id="cf-type">
               <option value="masuk">🟢 Duit Masuk (+)</option>
@@ -176,19 +168,90 @@
             <input type="number" id="cf-amount" placeholder="Jumlah (RM)">
             <button class="btn-save" onclick="simpanCashflow()">Simpan</button>
           </div>
-
           <div class="table-responsive">
             <table id="table-cashflow">
-              <thead>
-                <tr>
-                  <th>Tarikh</th>
-                  <th>Keterangan</th>
-                  <th>Jumlah (RM)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Data akan masuk sini -->
-              </tbody>
+              <thead><tr><th>Tarikh</th><th>Keterangan</th><th>Jumlah (RM)</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 3. PAGE PELANGGAN ================= -->
+      <div id="page-pelanggan" class="page-section">
+        <div class="card-panel">
+          <h2>Daftar Pelanggan Baru</h2>
+          <div class="form-row">
+            <input type="text" id="plg-name" placeholder="Nama Penuh">
+            <input type="text" id="plg-phone" placeholder="No. Telefon">
+            <select id="plg-status">
+              <option value="Regular">Regular</option>
+              <option value="VIP">VIP Member</option>
+            </select>
+            <button class="btn-save" onclick="simpanPelanggan()">Daftar</button>
+          </div>
+          <div class="table-responsive">
+            <table id="table-pelanggan">
+              <thead><tr><th>Nama</th><th>Telefon</th><th>Status</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 4. PAGE KOLAM & SESI ================= -->
+      <div id="page-kolam" class="page-section">
+        <div class="card-panel">
+          <h2>Rekod Sesi Mancing</h2>
+          <div class="form-row">
+            <input type="text" id="sesi-nama" placeholder="Nama Pelanggan">
+            <select id="sesi-kolam">
+              <option value="Kolam A">Kolam A</option>
+              <option value="Kolam B">Kolam B</option>
+            </select>
+            <input type="number" id="sesi-harga" placeholder="Harga Sewa (RM)">
+            <button class="btn-save" onclick="simpanSesi()">Mula Sesi</button>
+          </div>
+          <div class="table-responsive">
+            <table id="table-sesi">
+              <thead><tr><th>Masa</th><th>Nama</th><th>Kolam</th><th>Harga</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 5. PAGE PEMBEKAL & RESIT ================= -->
+      <div id="page-pembekal" class="page-section">
+        <div class="card-panel">
+          <h2>Rekod Pembekal (Penternak Luar)</h2>
+          <div class="form-row">
+            <input type="text" id="pb-nama" placeholder="Nama Pembekal">
+            <input type="text" id="pb-barang" placeholder="Barang (Cth: Udang Galah 10kg)">
+            <button class="btn-save" onclick="simpanPembekal()">Simpan Rekod</button>
+          </div>
+          <div class="table-responsive">
+            <table id="table-pembekal">
+              <thead><tr><th>Nama Pembekal</th><th>Barang</th><th>Tindakan</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 6. PAGE SYIF & TUGASAN ================= -->
+      <div id="page-syif" class="page-section">
+        <div class="card-panel">
+          <h2>Tugasan Pekerja (HR)</h2>
+          <div class="form-row">
+            <input type="text" id="syif-nama" placeholder="Nama Staff">
+            <input type="text" id="syif-tugas" placeholder="Tugasan (Cth: Kemas Kolam A)">
+            <button class="btn-save" onclick="simpanSyif()">Bagi Tugasan</button>
+          </div>
+          <div class="table-responsive">
+            <table id="table-syif">
+              <thead><tr><th>Staff</th><th>Tugasan</th><th>Status</th></tr></thead>
+              <tbody></tbody>
             </table>
           </div>
         </div>
@@ -196,6 +259,9 @@
 
     </div>
   </div>
+
+  <!-- KAWASAN PRINT RESIT (Tersembunyi) -->
+  <div id="print-area"></div>
 
   <!-- FIREBASE SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -207,23 +273,18 @@
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-
     const BOS_UID = "3Ah8hKjH6Qc54WKIfZN9rTighIO2"; 
 
-    // LOGIN / LOGOUT
+    // --- AUTH ---
     function prosesLogin() {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
-      const errorMsg = document.getElementById('login-error');
-
       auth.signInWithEmailAndPassword(email, password)
-        .then(() => { errorMsg.style.display = 'none'; })
-        .catch(() => { errorMsg.style.display = 'block'; });
+        .then(() => { document.getElementById('login-error').style.display = 'none'; })
+        .catch(() => { document.getElementById('login-error').style.display = 'block'; });
     }
-
     function prosesLogout() { auth.signOut(); }
 
-    // SEMAK ROLE
     auth.onAuthStateChanged((user) => {
       if (user) {
         document.getElementById('login-screen').style.display = 'none';
@@ -235,144 +296,191 @@
         } else {
           document.getElementById('user-role').innerText = "👤 Staff";
           document.querySelectorAll('.bos-only').forEach(el => el.style.display = 'none');
-          // Jika staff, sorok page cashflow
-          document.getElementById('page-cashflow').classList.remove('active');
-          document.getElementById('page-dashboard').classList.add('active');
+          tukarPage('dashboard', document.querySelector('.menu-item')); // Reset ke dashboard
         }
         
-        loadCashflow(); // Tarik data dari database
-
+        loadAllData(); 
       } else {
         document.getElementById('login-screen').style.display = 'block';
         document.getElementById('app-dashboard').style.display = 'none';
       }
     });
 
-    // FUNGSI TUKAR PAGE
+    // --- NAVIGASI ---
     function tukarPage(pageName, element) {
       document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
       document.getElementById('page-' + pageName).classList.add('active');
       
       document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-      element.classList.add('active');
+      if(element) element.classList.add('active');
 
-      // Tukar tajuk atas
       let title = "Dashboard";
       if(pageName === 'cashflow') title = "Cashflow";
-      if(pageName === 'kolam') title = "Kolam & Sesi";
       if(pageName === 'pelanggan') title = "Pelanggan";
+      if(pageName === 'kolam') title = "Kolam & Sesi";
+      if(pageName === 'pembekal') title = "Pembekal";
+      if(pageName === 'syif') title = "Syif & Tugasan";
       document.getElementById('page-title').innerText = title;
     }
 
-    // TOGGLE OPEN / CLOSED
+    // --- TOGGLE OPEN / CLOSED ---
     let isOpen = true;
     function tukarStatus() {
       isOpen = !isOpen;
       const card = document.getElementById('kolam-status-card');
       const text = document.getElementById('status-text');
       const btn = document.getElementById('btn-toggle-status');
-      const sub = document.getElementById('status-sub');
-
       if (isOpen) {
-        card.classList.remove('closed');
-        text.innerHTML = "🟢 NOW WE ARE OPEN";
-        btn.innerHTML = "🔴 Tutup Kolam";
-        sub.innerText = "Kolam sedang beroperasi";
+        card.classList.remove('closed'); text.innerHTML = "🟢 NOW WE ARE OPEN"; btn.innerHTML = "🔴 Tutup Kolam";
       } else {
-        card.classList.add('closed');
-        text.innerHTML = "🔴 NOW WE ARE CLOSED";
-        btn.innerHTML = "🟢 Buka Kolam";
-        sub.innerText = "Kolam telah ditutup";
+        card.classList.add('closed'); text.innerHTML = "🔴 NOW WE ARE CLOSED"; btn.innerHTML = "🟢 Buka Kolam";
       }
     }
 
-    // ================= CASHFLOW LOGIC =================
+    // --- LOAD ALL DATA ---
+    function loadAllData() {
+      loadCashflow(); loadPelanggan(); loadSesi(); loadPembekal(); loadSyif();
+    }
 
+    // ================= CASHFLOW =================
+    let cashflowData = [];
     function simpanCashflow() {
       const type = document.getElementById('cf-type').value;
       const desc = document.getElementById('cf-desc').value;
       const amount = parseFloat(document.getElementById('cf-amount').value);
+      if (!desc || isNaN(amount)) return alert("Sila isi keterangan & jumlah.");
 
-      if (!desc || isNaN(amount)) {
-        alert("Sila isi keterangan dan jumlah yang sah.");
-        return;
-      }
-
-      db.collection("cashflow").add({
-        type: type,
-        desc: desc,
-        amount: amount,
-        date: new Date().toISOString()
-      }).then(() => {
-        document.getElementById('cf-desc').value = '';
-        document.getElementById('cf-amount').value = '';
-        loadCashflow(); // Refresh table
-      });
+      db.collection("cashflow").add({ type, desc, amount, date: new Date().toISOString() })
+        .then(() => { document.getElementById('cf-desc').value = ''; document.getElementById('cf-amount').value = ''; });
     }
-
-    let cashflowData = []; // Simpan data sementara untuk Export Excel
-
     function loadCashflow() {
       db.collection("cashflow").orderBy("date", "desc").onSnapshot((snapshot) => {
         const tbody = document.querySelector('#table-cashflow tbody');
-        tbody.innerHTML = '';
-        cashflowData = [];
+        tbody.innerHTML = ''; cashflowData = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data(); cashflowData.push(data);
+          const dateStr = new Date(data.date).toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' });
+          const sign = data.type === 'masuk' ? '+' : '-';
+          const color = data.type === 'masuk' ? 'text-success' : 'text-danger';
+          tbody.innerHTML += `<tr><td>${dateStr}</td><td>${data.desc}</td><td class="${color}">${sign} RM ${data.amount.toFixed(2)}</td></tr>`;
+        });
+      });
+    }
+    function exportExcel() {
+      if (cashflowData.length === 0) return alert("Tiada data.");
+      let csvContent = "\uFEFFTarikh,Jenis,Keterangan,Jumlah (RM)\n";
+      cashflowData.forEach(row => {
+        const dateStr = new Date(row.date).toLocaleDateString('ms-MY');
+        const jenis = row.type === 'masuk' ? 'Masuk' : 'Keluar';
+        csvContent += `"${dateStr}","${jenis}","${row.desc}",${row.amount}\n`;
+      });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
+      link.download = `Cashflow_${new Date().toISOString().split('T')[0]}.csv`; link.click();
+    }
 
+    // ================= PELANGGAN =================
+    function simpanPelanggan() {
+      const name = document.getElementById('plg-name').value;
+      const phone = document.getElementById('plg-phone').value;
+      const status = document.getElementById('plg-status').value;
+      if (!name) return alert("Sila isi nama.");
+      db.collection("pelanggan").add({ name, phone, status })
+        .then(() => { document.getElementById('plg-name').value = ''; document.getElementById('plg-phone').value = ''; });
+    }
+    function loadPelanggan() {
+      db.collection("pelanggan").onSnapshot((snapshot) => {
+        const tbody = document.querySelector('#table-pelanggan tbody');
+        tbody.innerHTML = ''; let count = 0;
+        snapshot.forEach((doc) => {
+          const data = doc.data(); count++;
+          tbody.innerHTML += `<tr><td>${data.name}</td><td>${data.phone}</td><td>${data.status}</td></tr>`;
+        });
+        document.getElementById('dash-pelanggan').innerText = count;
+      });
+    }
+
+    // ================= SESI KOLAM =================
+    function simpanSesi() {
+      const nama = document.getElementById('sesi-nama').value;
+      const kolam = document.getElementById('sesi-kolam').value;
+      const harga = parseFloat(document.getElementById('sesi-harga').value);
+      if (!nama || isNaN(harga)) return alert("Sila isi nama & harga.");
+      db.collection("sesi").add({ nama, kolam, harga, date: new Date().toISOString() })
+        .then(() => { document.getElementById('sesi-nama').value = ''; document.getElementById('sesi-harga').value = ''; });
+    }
+    function loadSesi() {
+      db.collection("sesi").orderBy("date", "desc").onSnapshot((snapshot) => {
+        const tbody = document.querySelector('#table-sesi tbody');
+        tbody.innerHTML = '';
         snapshot.forEach((doc) => {
           const data = doc.data();
-          cashflowData.push(data);
-
-          const dateObj = new Date(data.date);
-          const dateStr = dateObj.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
-          
-          const isMasuk = data.type === 'masuk';
-          const sign = isMasuk ? '+' : '-';
-          const colorClass = isMasuk ? 'text-success' : 'text-danger';
-
-          tbody.innerHTML += `
-            <tr>
-              <td>${dateStr}</td>
-              <td>${data.desc}</td>
-              <td class="${colorClass}">${sign} RM ${data.amount.toFixed(2)}</td>
-            </tr>
-          `;
+          const timeStr = new Date(data.date).toLocaleTimeString('ms-MY', { hour: '2-digit', minute:'2-digit' });
+          tbody.innerHTML += `<tr><td>${timeStr}</td><td>${data.nama}</td><td>${data.kolam}</td><td>RM ${data.harga}</td></tr>`;
         });
       });
     }
 
-    // EXPORT TO EXCEL (CSV)
-    function exportExcel() {
-      if (cashflowData.length === 0) {
-        alert("Tiada data untuk diexport.");
-        return;
-      }
-
-      // Bina CSV string (guna \uFEFF untuk pastikan Excel baca huruf dgn betul)
-      let csvContent = "\uFEFFTarikh,Jenis,Keterangan,Jumlah (RM)\n";
-      
-      cashflowData.forEach(row => {
-        const dateObj = new Date(row.date);
-        const dateStr = dateObj.toLocaleDateString('ms-MY') + " " + dateObj.toLocaleTimeString('ms-MY');
-        const jenis = row.type === 'masuk' ? 'Masuk' : 'Keluar';
-        csvContent += `"${dateStr}","${jenis}","${row.desc}",${row.amount}\n`;
+    // ================= PEMBEKAL & RESIT =================
+    function simpanPembekal() {
+      const nama = document.getElementById('pb-nama').value;
+      const barang = document.getElementById('pb-barang').value;
+      if (!nama || !barang) return alert("Sila isi nama & barang.");
+      db.collection("pembekal").add({ nama, barang, date: new Date().toISOString() })
+        .then(() => { document.getElementById('pb-nama').value = ''; document.getElementById('pb-barang').value = ''; });
+    }
+    function loadPembekal() {
+      db.collection("pembekal").orderBy("date", "desc").onSnapshot((snapshot) => {
+        const tbody = document.querySelector('#table-pembekal tbody');
+        tbody.innerHTML = '';
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          // Butang print ni akan panggil fungsi printResit
+          tbody.innerHTML += `<tr>
+            <td>${data.nama}</td><td>${data.barang}</td>
+            <td><button class="btn-print" onclick="printResit('${data.nama}', '${data.barang}')">🖨️ Print Resit</button></td>
+          </tr>`;
+        });
       });
+    }
 
-      // Create download link
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", `Cashflow_Kolam_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    function printResit(pembekal, barang) {
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = `
+        <h2 style="text-align:center;">KOLAM UDANG SAHABAT</h2>
+        <p style="text-align:center; font-size:12px;">Resit Pembelian Stok</p>
+        <hr style="margin:10px 0;">
+        <p><strong>Tarikh:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
+        <p><strong>Pembekal:</strong> ${pembekal}</p>
+        <p><strong>Barang:</strong> ${barang}</p>
+        <hr style="margin:10px 0;">
+        <p style="text-align:center;">Terima Kasih</p>
+      `;
+      window.print();
+    }
+
+    // ================= SYIF & TUGASAN (HR) =================
+    function simpanSyif() {
+      const nama = document.getElementById('syif-nama').value;
+      const tugas = document.getElementById('syif-tugas').value;
+      if (!nama || !tugas) return alert("Sila isi nama & tugas.");
+      db.collection("syif").add({ nama, tugas, status: "Belum Siap", date: new Date().toISOString() })
+        .then(() => { document.getElementById('syif-tugas').value = ''; });
+    }
+    function loadSyif() {
+      db.collection("syif").orderBy("date", "desc").onSnapshot((snapshot) => {
+        const tbody = document.querySelector('#table-syif tbody');
+        tbody.innerHTML = '';
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const color = data.status === 'Siap' ? 'text-success' : 'text-danger';
+          tbody.innerHTML += `<tr><td>${data.nama}</td><td>${data.tugas}</td><td class="${color}">${data.status}</td></tr>`;
+        });
+      });
     }
 
     // Service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
   </script>
 </body>
 </html>
