@@ -75,7 +75,7 @@
     .text-success { color: var(--success); font-weight: 600; }
     .text-danger { color: var(--danger); font-weight: 600; }
 
-    /* PRINT RESIT */
+    /* PRINT AREA */
     #print-area { display: none; padding: 20px; font-family: monospace; }
     
     @media (max-width: 768px) {
@@ -221,7 +221,7 @@
         </div>
       </div>
 
-      <!-- ================= 5. PAGE PEMBEKAL & RESIT ================= -->
+      <!-- ================= 5. PAGE PEMBEKAL ================= -->
       <div id="page-pembekal" class="page-section">
         <div class="card-panel">
           <h2>Rekod Pembekal (Penternak Luar)</h2>
@@ -239,7 +239,37 @@
         </div>
       </div>
 
-      <!-- ================= 6. PAGE SYIF & TUGASAN ================= -->
+      <!-- ================= 6. PAGE RESIT & INVOICE (BARU!) ================= -->
+      <div id="page-resit" class="page-section">
+        <div class="card-panel">
+          <h2>Buat Resit / Invoice Pelanggan</h2>
+          
+          <div class="form-row" style="background: #F8FAFC; padding: 15px; border-radius: 8px;">
+            <input type="text" id="inv-nama" placeholder="Nama Pelanggan" style="flex: 2;">
+          </div>
+
+          <div class="form-row">
+            <input type="text" id="inv-item" placeholder="Item (Cth: Sewa Pancing, Umpan)" style="flex: 2;">
+            <input type="number" id="inv-harga" placeholder="Harga (RM)">
+            <input type="number" id="inv-qty" placeholder="Kuantiti" value="1">
+            <button class="btn-save" onclick="tambahItemResit()">+ Tambah Item</button>
+          </div>
+
+          <div class="table-responsive">
+            <table id="table-resit">
+              <thead><tr><th>Item</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Tindakan</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          
+          <div class="flex-between" style="margin-top: 20px; border-top: 2px solid #E2E8F0; padding-top: 20px;">
+            <h3>Total: <span id="resit-total" style="color: var(--success);">RM 0.00</span></h3>
+            <button class="btn-excel" onclick="cetakResitPelanggan()" style="background-color: var(--primary);">🖨️ Cetak Resit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 7. PAGE SYIF & TUGASAN ================= -->
       <div id="page-syif" class="page-section">
         <div class="card-panel">
           <h2>Tugasan Pekerja (HR)</h2>
@@ -260,7 +290,7 @@
     </div>
   </div>
 
-  <!-- KAWASAN PRINT RESIT (Tersembunyi) -->
+  <!-- KAWASAN PRINT RESIT -->
   <div id="print-area"></div>
 
   <!-- FIREBASE SDK -->
@@ -296,7 +326,7 @@
         } else {
           document.getElementById('user-role').innerText = "👤 Staff";
           document.querySelectorAll('.bos-only').forEach(el => el.style.display = 'none');
-          tukarPage('dashboard', document.querySelector('.menu-item')); // Reset ke dashboard
+          tukarPage('dashboard', document.querySelector('.menu-item'));
         }
         
         loadAllData(); 
@@ -319,6 +349,7 @@
       if(pageName === 'pelanggan') title = "Pelanggan";
       if(pageName === 'kolam') title = "Kolam & Sesi";
       if(pageName === 'pembekal') title = "Pembekal";
+      if(pageName === 'resit') title = "Resit & Invoice";
       if(pageName === 'syif') title = "Syif & Tugasan";
       document.getElementById('page-title').innerText = title;
     }
@@ -349,7 +380,6 @@
       const desc = document.getElementById('cf-desc').value;
       const amount = parseFloat(document.getElementById('cf-amount').value);
       if (!desc || isNaN(amount)) return alert("Sila isi keterangan & jumlah.");
-
       db.collection("cashflow").add({ type, desc, amount, date: new Date().toISOString() })
         .then(() => { document.getElementById('cf-desc').value = ''; document.getElementById('cf-amount').value = ''; });
     }
@@ -421,7 +451,7 @@
       });
     }
 
-    // ================= PEMBEKAL & RESIT =================
+    // ================= PEMBEKAL =================
     function simpanPembekal() {
       const nama = document.getElementById('pb-nama').value;
       const barang = document.getElementById('pb-barang').value;
@@ -435,7 +465,6 @@
         tbody.innerHTML = '';
         snapshot.forEach((doc) => {
           const data = doc.data();
-          // Butang print ni akan panggil fungsi printResit
           tbody.innerHTML += `<tr>
             <td>${data.nama}</td><td>${data.barang}</td>
             <td><button class="btn-print" onclick="printResit('${data.nama}', '${data.barang}')">🖨️ Print Resit</button></td>
@@ -457,6 +486,99 @@
         <p style="text-align:center;">Terima Kasih</p>
       `;
       window.print();
+    }
+
+    // ================= RESIT & INVOICE (PELANGGAN) =================
+    let resitItems = [];
+    function tambahItemResit() {
+      const item = document.getElementById('inv-item').value;
+      const harga = parseFloat(document.getElementById('inv-harga').value);
+      const qty = parseFloat(document.getElementById('inv-qty').value);
+      
+      if (!item || isNaN(harga) || isNaN(qty)) return alert("Sila isi item, harga dan kuantiti yang betul.");
+      
+      resitItems.push({ item, harga, qty });
+      document.getElementById('inv-item').value = '';
+      document.getElementById('inv-harga').value = '';
+      document.getElementById('inv-qty').value = '1';
+      paparItemResit();
+    }
+
+    function paparItemResit() {
+      const tbody = document.querySelector('#table-resit tbody');
+      tbody.innerHTML = '';
+      let total = 0;
+      
+      resitItems.forEach((data, index) => {
+        const subtotal = data.harga * data.qty;
+        total += subtotal;
+        tbody.innerHTML += `
+          <tr>
+            <td>${data.item}</td>
+            <td>RM ${data.harga.toFixed(2)}</td>
+            <td>${data.qty}</td>
+            <td>RM ${subtotal.toFixed(2)}</td>
+            <td><button class="btn-print" style="background:var(--danger)" onclick="padamItemResit(${index})">Buang</button></td>
+          </tr>
+        `;
+      });
+      document.getElementById('resit-total').innerText = `RM ${total.toFixed(2)}`;
+    }
+
+    function padamItemResit(index) {
+      resitItems.splice(index, 1);
+      paparItemResit();
+    }
+
+    function cetakResitPelanggan() {
+      const nama = document.getElementById('inv-nama').value;
+      if (!nama) return alert("Sila masukkan nama pelanggan.");
+      if (resitItems.length === 0) return alert("Sila tambah item dulu.");
+
+      let tableRows = '';
+      let total = 0;
+      resitItems.forEach(data => {
+        const subtotal = data.harga * data.qty;
+        total += subtotal;
+        tableRows += `
+          <tr>
+            <td>${data.item}</td>
+            <td>${data.qty}</td>
+            <td>RM ${data.harga.toFixed(2)}</td>
+            <td style="text-align:right;">RM ${subtotal.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = `
+        <div style="max-width:400px; margin: 0 auto;">
+          <h2 style="text-align:center; margin-bottom:5px;">KOLAM UDANG SAHABAT</h2>
+          <p style="text-align:center; font-size:12px; margin-bottom:20px;">Resit Rasmi</p>
+          
+          <p><strong>Tarikh:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
+          <p><strong>Pelanggan:</strong> ${nama}</p>
+          <hr style="margin:15px 0; border-top: 1px dashed #000;">
+          
+          <table style="width:100%; font-size:14px; margin-bottom:15px;">
+            <thead>
+              <tr><th style="text-align:left;">Item</th><th>Qty</th><th>Harga</th><th style="text-align:right;">Jumlah</th></tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+          
+          <hr style="margin:15px 0; border-top: 1px dashed #000;">
+          <h3 style="text-align:right;">TOTAL: RM ${total.toFixed(2)}</h3>
+          
+          <p style="text-align:center; margin-top:30px; font-size:12px;">Terima Kasih Kerana Memancing Di Sini!</p>
+        </div>
+      `;
+      window.print();
+      
+      // Kosongkan semula selepas print
+      document.getElementById('inv-nama').value = '';
+      resitItems = [];
+      paparItemResit();
     }
 
     // ================= SYIF & TUGASAN (HR) =================
