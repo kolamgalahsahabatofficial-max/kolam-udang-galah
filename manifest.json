@@ -7,15 +7,15 @@
   "theme_color": "#0EA5E9",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3065/3065317.png",
+      "src": "847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3065/3065317.png",
+      "src": "847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
