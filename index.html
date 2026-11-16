@@ -88,10 +88,11 @@
       .main-content { padding: 15px; }
       .form-row { flex-direction: column; }
     }
+    
+    /* CSS PRINT YANG LEBIH LAJU & KEMAS */
     @media print {
-      body * { visibility: hidden; }
-      #print-area, #print-area * { visibility: visible; }
-      #print-area { position: absolute; left: 0; top: 0; width: 100%; display: block; }
+      body > *:not(#print-area) { display: none !important; }
+      #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
     }
   </style>
 </head>
@@ -99,9 +100,8 @@
 
   <!-- SKRIN LOGIN -->
   <div class="login-container" id="login-screen">
-    <!-- LOGO DI SINI -->
     <div class="logo-text">
-      <img src="847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 70px; margin-bottom: 10px; border-radius: 8px;"><br>
+      <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 70px; margin-bottom: 10px; border-radius: 8px;"><br>
       Kolam Udang <span>Sahabat</span>
     </div>
     <div class="subtitle">Sistem Pengurusan Galah (HR Edition)</div>
@@ -120,11 +120,9 @@
   <!-- DASHBOARD UTAMA -->
   <div id="app-dashboard">
     
-    <!-- SIDEBAR MENU -->
     <div class="sidebar">
-      <!-- LOGO DI SINI -->
       <div class="sidebar-logo">
-        <img src="847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 30px; vertical-align: middle; margin-right: 5px; border-radius: 4px;"> 
+        <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 30px; vertical-align: middle; margin-right: 5px; border-radius: 4px;"> 
         Udang<span>Sahabat</span>
       </div>
       
@@ -137,7 +135,6 @@
       <div class="menu-item" onclick="tukarPage('syif', this)">🗓️ Syif & Tugasan</div>
     </div>
 
-    <!-- KANDUNGAN UTAMA -->
     <div class="main-content">
       <div class="header">
         <h1 id="page-title">Dashboard</h1>
@@ -147,7 +144,6 @@
         </div>
       </div>
 
-      <!-- ================= 1. PAGE DASHBOARD ================= -->
       <div id="page-dashboard" class="page-section active">
         <div class="status-card" id="kolam-status-card">
           <div class="status-badge" id="status-text">🟢 NOW WE ARE OPEN</div>
@@ -161,7 +157,6 @@
         </div>
       </div>
 
-      <!-- ================= 2. PAGE CASHFLOW ================= -->
       <div id="page-cashflow" class="page-section">
         <div class="card-panel">
           <div class="flex-between">
@@ -186,7 +181,6 @@
         </div>
       </div>
 
-      <!-- ================= 3. PAGE PELANGGAN ================= -->
       <div id="page-pelanggan" class="page-section">
         <div class="card-panel">
           <h2>Daftar Pelanggan Baru</h2>
@@ -208,7 +202,6 @@
         </div>
       </div>
 
-      <!-- ================= 4. PAGE KOLAM & SESI ================= -->
       <div id="page-kolam" class="page-section">
         <div class="card-panel">
           <h2>Rekod Sesi Mancing</h2>
@@ -230,7 +223,6 @@
         </div>
       </div>
 
-      <!-- ================= 5. PAGE PEMBEKAL ================= -->
       <div id="page-pembekal" class="page-section">
         <div class="card-panel">
           <h2>Rekod Pembekal (Penternak Luar)</h2>
@@ -248,7 +240,6 @@
         </div>
       </div>
 
-      <!-- ================= 6. PAGE RESIT & INVOICE ================= -->
       <div id="page-resit" class="page-section">
         <div class="card-panel">
           <h2>Buat Resit / Invoice Pelanggan</h2>
@@ -278,7 +269,6 @@
         </div>
       </div>
 
-      <!-- ================= 7. PAGE SYIF & TUGASAN ================= -->
       <div id="page-syif" class="page-section">
         <div class="card-panel">
           <h2>Tugasan Pekerja (HR)</h2>
@@ -314,7 +304,6 @@
     const db = firebase.firestore();
     const BOS_UID = "3Ah8hKjH6Qc54WKIfZN9rTighIO2"; 
 
-    // --- AUTH ---
     function prosesLogin() {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
@@ -337,7 +326,6 @@
           document.querySelectorAll('.bos-only').forEach(el => el.style.display = 'none');
           tukarPage('dashboard', document.querySelector('.menu-item'));
         }
-        
         loadAllData(); 
       } else {
         document.getElementById('login-screen').style.display = 'block';
@@ -345,11 +333,9 @@
       }
     });
 
-    // --- NAVIGASI ---
     function tukarPage(pageName, element) {
       document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
       document.getElementById('page-' + pageName).classList.add('active');
-      
       document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
       if(element) element.classList.add('active');
 
@@ -363,7 +349,6 @@
       document.getElementById('page-title').innerText = title;
     }
 
-    // --- TOGGLE OPEN / CLOSED ---
     let isOpen = true;
     function tukarStatus() {
       isOpen = !isOpen;
@@ -377,7 +362,6 @@
       }
     }
 
-    // --- LOAD ALL DATA ---
     function loadAllData() {
       loadCashflow(); loadPelanggan(); loadSesi(); loadPembekal(); loadSyif();
     }
@@ -486,7 +470,7 @@
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
         <div style="text-align:center;">
-          <img src="847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 60px; margin-bottom: 10px;">
+          <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 60px; margin-bottom: 10px;">
         </div>
         <h2 style="text-align:center;">KOLAM UDANG SAHABAT</h2>
         <p style="text-align:center; font-size:12px;">Resit Pembelian Stok</p>
@@ -497,7 +481,8 @@
         <hr style="margin:10px 0;">
         <p style="text-align:center;">Terima Kasih</p>
       `;
-      window.print();
+      // Delay sikit bagi browser load gambar
+      setTimeout(() => { window.print(); }, 800); 
     }
 
     // ================= RESIT & INVOICE (PELANGGAN) =================
@@ -566,7 +551,7 @@
       printArea.innerHTML = `
         <div style="max-width:400px; margin: 0 auto;">
           <div style="text-align:center;">
-            <img src="847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 60px; margin-bottom: 10px;">
+            <img src="./847a8651-252b-49c7-a5d9-71d8ee8d3ffa.jpeg" style="height: 60px; margin-bottom: 10px;">
           </div>
           <h2 style="text-align:center; margin-bottom:5px;">KOLAM UDANG SAHABAT</h2>
           <p style="text-align:center; font-size:12px; margin-bottom:20px;">Resit Rasmi</p>
@@ -588,12 +573,15 @@
           <p style="text-align:center; margin-top:30px; font-size:12px;">Terima Kasih Kerana Memancing Di Sini!</p>
         </div>
       `;
-      window.print();
       
-      // Kosongkan semula selepas print
-      document.getElementById('inv-nama').value = '';
-      resitItems = [];
-      paparItemResit();
+      // Delay sikit bagi browser load gambar
+      setTimeout(() => { 
+        window.print(); 
+        // Kosongkan semula selepas print
+        document.getElementById('inv-nama').value = '';
+        resitItems = [];
+        paparItemResit();
+      }, 800);
     }
 
     // ================= SYIF & TUGASAN (HR) =================
@@ -616,7 +604,6 @@
       });
     }
 
-    // Service worker
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
   </script>
 </body>
